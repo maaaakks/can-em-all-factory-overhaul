@@ -5,7 +5,7 @@ using Newtonsoft.Json.Linq;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-[assembly: MelonInfo(typeof(PermanentUpgradesRevamped.Mod), "Permanent Upgrades Revamped", "0.13.0", "Max & Codex")]
+[assembly: MelonInfo(typeof(PermanentUpgradesRevamped.Mod), "Permanent Upgrades Revamped", "0.14.0", "Max & Codex")]
 [assembly: MelonGame("LuisDev", "Can 'Em All")]
 [assembly: HarmonyDontPatchAll]
 
@@ -14,8 +14,10 @@ namespace PermanentUpgradesRevamped;
 public sealed class Mod : MelonMod
 {
     internal static Mod Self = null!;
-    internal static int[] Ranks = new int[Balance.Upgrades.Length];
-    internal static bool Migrated, Loaded, Faulted;
+    static readonly SaveScopedProgress Progress=new();
+    internal static int[] Ranks {get=>Progress.Ranks;set=>Progress.Ranks=value;}
+    internal static bool Migrated {get=>Progress.Migrated;set=>Progress.Migrated=value;}
+    internal static bool Loaded, Faulted;
     internal static string SaveFile = "";
     static string Notice = "Purchased bonuses apply immediately. Starting cash: next factory reset.";
     static float NextScan;
@@ -45,7 +47,7 @@ public sealed class Mod : MelonMod
     internal static void LoadState()
     {
         try {
-            Ranks = new int[Balance.Upgrades.Length]; Migrated = false; Loaded = true;
+            Progress.Restore(new int[Balance.Upgrades.Length],false);Loaded = true;
             if (!File.Exists(SaveFile)) return;
             var original = JObject.Parse(File.ReadAllText(SaveFile));
             var root = SaveMigration.Upgrade(original, out var scalingRefund,out var grinderRefund);
@@ -70,6 +72,7 @@ public sealed class Mod : MelonMod
     internal static void WriteSave(SaveManager manager)
     {
         if (Faulted || !Loaded || manager.CurrentSaveData == null) return;
+        BindCurrentSave(manager.CurrentSaveData);
         Balance.Validate(Ranks);
         var root = JObject.Parse(JsonUtility.ToJson(manager.CurrentSaveData, true));
         root["pur"] = new JObject { ["schema"] = 6, ["migrated"] = Migrated, ["ranks"] = JArray.FromObject(Ranks) };
@@ -104,6 +107,7 @@ public sealed class Mod : MelonMod
 
     internal static void ApplyBonuses()
     {
+        if(SaveManager.Instance?.CurrentSaveData!=null)BindCurrentSave(SaveManager.Instance.CurrentSaveData);
         if (!Migrated || Faulted) return;
         Specials.Apply();
         var gm = GameManager.Instance;
@@ -197,10 +201,40 @@ public sealed class Mod : MelonMod
         ApplyBonuses(); PermanentUpgradeManager.Instance.UpdatePointsText();
     }
 
+    static void BindCurrentSave(SaveData save)
+    {
+        if(!Progress.BindCurrent(save.Pointer.ToInt64()))return;
+        NextScan=0;
+        Self.LoggerInstance.Msg("Native save object changed without Load: permanent ranks reset for the new save.");
+    }
+
+    [HarmonyPatch(typeof(Menu),"NewGame")]
+    static class NewGamePatch
+    {
+        static void Prefix()
+        {
+            // Back up the old slot before the native method replaces CurrentSaveData.
+            if(File.Exists(SaveFile))File.Copy(SaveFile,SaveFile+".before-new-game-"+DateTime.UtcNow.ToString("yyyyMMdd-HHmmss-fffffff"));
+            Progress.StartNew();Loaded=true;Faulted=false;NextScan=0;ShopFirst.ResetScene();Specials.ResetScene();
+            // Remove the previous save's applied deltas before native initialization starts.
+            ApplyBonuses();
+            IntakeGeometry.Apply(1);IndustrialSuction.Configure();
+            Self.LoggerInstance.Msg("New Game: zero permanent ranks; previous mod save backed up. Prestige is scoped to the new save.");
+        }
+        static void Postfix()
+        {
+            var manager=SaveManager.Instance;if(manager?.CurrentSaveData==null)return;
+            BindCurrentSave(manager.CurrentSaveData);WriteSave(manager);
+        }
+    }
+
     [HarmonyPatch(typeof(SaveManager), "get_SavePath")]
     static class SavePathPatch { static void Postfix(ref string __result) => __result = SaveFile; }
     [HarmonyPatch(typeof(SaveManager), "Load")]
-    static class LoadPatch { static void Prefix() => LoadState(); }
+    static class LoadPatch {
+        static void Prefix()=>LoadState();
+        static void Postfix(SaveData __result){if(__result!=null)Progress.BindLoaded(__result.Pointer.ToInt64());}
+    }
     [HarmonyPatch(typeof(SaveManager), "Save")]
     static class SavePatch { static bool Prefix(SaveManager __instance) { if(BulkPurchase.Running)return false; try { WriteSave(__instance); } catch (Exception ex) { Faulted = true; Self.LoggerInstance.Error(ex); } return false; } }
     [HarmonyPatch(typeof(PermanentUpgradeManager), "ApplySave")]

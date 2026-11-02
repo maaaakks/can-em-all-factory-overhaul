@@ -1,4 +1,4 @@
-# Features and balance - 0.13.0
+# Features and balance - 0.14.0
 
 ## Permanent upgrade table
 
@@ -90,3 +90,7 @@ Starting or continuing a game opens the native run shop before the first day beg
 Industrial suction is a **Permanent Upgrades > Grinders** feature, upgraded through Suction Range and Suction Power. Grinder Width is in the same permanent group. Maximum-width openings are x2.25 at rank 6/6.
 
 Original-resolution screenshots are available in the [README](../README.md): the Permanent Upgrades menu, maximum-width grinders empty and processing bodies, blue night lighting, and optimized conveyors.
+
+## Save-scoped prestige
+
+Permanent ranks are stored in the active mod save. Continue restores that save's ranks. New Game creates a fresh save with zero permanent ranks and native starting points; it first creates a timestamped `.before-new-game-*` backup of the previous mod save. Grinder width returns to its baseline and suction remains inactive until purchased in the new save. Selling the factory is prestige within the same save and preserves permanent purchases. Schema 6 and all balance tables remain unchanged.

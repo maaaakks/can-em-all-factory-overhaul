@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.14.0 - Save-scoped permanent progress
+
+- Fix New Game retaining the previous save's permanent ranks in memory.
+- Bind restored ranks to the native SaveData object and reset ranks on an unannounced object replacement.
+- Back up the previous mod save before New Game, remove old applied bonuses, restore base grinder width and disable suction for a fresh save.
+- Preserve permanent ranks when loading/continuing a save and when selling the factory.
+- Add save ownership and New Game regression checks; keep save schema 6.
+
 ## 0.13.0 - Shop-first starts and screenshot gallery
 
 - Open the run shop before starting the native day loop; NEXT DAY or Space begins the day after preparation.

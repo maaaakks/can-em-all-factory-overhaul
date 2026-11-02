@@ -2,7 +2,7 @@
 
 An experimental progression and factory automation overhaul for **Can ’Em All**.
 
-**Current code version: 0.13.0 alpha.** Built with MelonLoader for the Windows Steam IL2CPP version of the game. The in-game assembly still uses the name **Permanent Upgrades Revamped**.
+**Current code version: 0.14.0 alpha.** Built with MelonLoader for the Windows Steam IL2CPP version of the game. The in-game assembly still uses the name **Permanent Upgrades Revamped**.
 
 > **Source preview:** this repository contains the mod source, English documentation and core checks. A player-ready installer and downloadable binary release have not been published. The custom in-game interface is in English.
 
@@ -26,6 +26,7 @@ An experimental progression and factory automation overhaul for **Can ’Em All*
 - Preserve special effects such as Shiny Shipment and First Blood.
 - Add **+5 to +50 monsters to the first delivery of each day**, across ten permanent ranks.
 - Fully refund permanent purchases through the respec button.
+- Prestige belongs to the save: **Continue** restores its ranks; **New Game** starts with zero ranks and creates a backup of the previous mod save.
 - English labels, descriptions, tooltips and batch controls, with English number formatting.
 - Rebuild scene-owned nodes, lighting and physics caches when starting a new game or reloading the factory.
 
@@ -117,7 +118,7 @@ See [BUILDING.md](docs/BUILDING.md) for manual commands and dependencies.
 
 ## Installation of a locally built copy
 
-Close the game and copy `PermanentUpgradesRevamped.dll` from the build output into the game's `Mods` directory. Launch normally. The loader log should list **Permanent Upgrades Revamped v0.13.0**.
+Close the game and copy `PermanentUpgradesRevamped.dll` from the build output into the game's `Mods` directory. Launch normally. The loader log should list **Permanent Upgrades Revamped v0.14.0**.
 
 In the shop, open **PRESTIGE** or press **P**. Press **P** or **Escape** to close the panel. **Buy Maximum** belongs to the run skill-tree tab and spends run money, not prestige points. Ammunition capacity becomes available at the next normal rearm; it does not grant free ammunition when purchased.
 

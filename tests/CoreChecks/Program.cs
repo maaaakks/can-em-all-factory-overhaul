@@ -98,3 +98,17 @@ Check(preparation.TryFinish(false)&&!preparation.Waiting&&!preparation.TryFinish
 preparation.Begin();preparation.RequestStart(false);preparation.Reset();Check(!preparation.Waiting&&!preparation.TryFinish(false),"Scene reset drops any pending start request");
 preparation.Begin();Check(preparation.Waiting&&!preparation.TryFinish(false),"A new game can prepare again without inheriting the old request");
 Console.WriteLine("ALL SHOP PREPARATION CHECKS PASSED");
+
+var scoped=new SaveScopedProgress();
+var completed=Balance.Upgrades.Select(u=>u.Cap).ToArray();
+scoped.Restore(completed,true);scoped.BindLoaded(101);
+Check(!scoped.BindCurrent(101)&&scoped.Ranks.SequenceEqual(completed),"Continue binds loaded ranks to the restored native save");
+scoped.StartNew();Check(scoped.Migrated&&scoped.Ranks.All(rank=>rank==0),"New Game clears every permanent rank, including grinders and suction");
+scoped.BindCurrent(101);scoped.BindCurrent(202);
+Check(scoped.Ranks.All(rank=>rank==0)&&completed.SequenceEqual(Balance.Upgrades.Select(u=>u.Cap)),"Native replacement cannot inherit ranks or mutate the previous save snapshot");
+scoped.Restore(completed,true);scoped.BindLoaded(303);
+Check(!scoped.BindCurrent(303)&&scoped.Ranks.SequenceEqual(completed),"Continue after New Game can still restore the ranks stored in that save");
+Check(scoped.BindCurrent(404)&&scoped.Migrated&&scoped.Ranks.All(rank=>rank==0),"An unannounced native save replacement also resets prestige instead of leaking it");
+scoped.Restore(completed,true);scoped.BindLoaded(505);scoped.Ranks[0]=0;
+Check(completed[0]==20,"Runtime purchases/respec cannot mutate the loaded input snapshot");
+Console.WriteLine("ALL SAVE OWNERSHIP CHECKS PASSED");
