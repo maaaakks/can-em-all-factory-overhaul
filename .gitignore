@@ -1,0 +1,34 @@
+# Build products and editor state
+**/bin/
+**/obj/
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.dll
+*.pdb
+*.exe
+*.zip
+artifacts/
+# Locally generated game data and installation files
+**/FloorGeometry.json
+local/
+game/
+MelonLoader/
+Mods/
+UserData/
+*.assets
+*.bundle
+GameAssembly.dll
+# Never publish player data, secrets or diagnostics
+*.sav
+*.sav.*
+*.bak
+*.log
+.env
+.env.*
+# Python environment
+.venv/
+__pycache__/
+*.py[cod]

@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType><TargetFramework>net8.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../src/PermanentUpgradesRevamped/Balance.cs" Link="Balance.cs" />
+    <Compile Include="../../src/PermanentUpgradesRevamped/SaveMigration.cs" Link="SaveMigration.cs" />
+    <Compile Include="../../src/PermanentUpgradesRevamped/RobotRetirement.cs" Link="RobotRetirement.cs" />
+    <Compile Include="../../src/PermanentUpgradesRevamped/BulkPlan.cs" Link="BulkPlan.cs" />
+    <Compile Include="../../src/PermanentUpgradesRevamped/EffectsRules.cs" Link="EffectsRules.cs" />
+    <Compile Include="../../src/PermanentUpgradesRevamped/PhysicsRules.cs" Link="PhysicsRules.cs" />
+    <Compile Include="../../src/PermanentUpgradesRevamped/SuctionRules.cs" Link="SuctionRules.cs" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(NewtonsoftJsonPath)' == ''">
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(NewtonsoftJsonPath)' != ''">
+    <Reference Include="Newtonsoft.Json"><HintPath>$(NewtonsoftJsonPath)</HintPath></Reference>
+  </ItemGroup>
+</Project>

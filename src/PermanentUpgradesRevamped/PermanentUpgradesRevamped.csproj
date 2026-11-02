@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><TargetFramework>net6.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>disable</Nullable><LangVersion>latest</LangVersion><EnableNETAnalyzers>false</EnableNETAnalyzers><GameDir Condition="'$(GameDir)' == ''">$(CANEMALL_GAME_DIR)</GameDir></PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="FloorGeometry.json" />
+    <Reference Include="MelonLoader"><HintPath>$(GameDir)/MelonLoader/net6/MelonLoader.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="0Harmony"><HintPath>$(GameDir)/MelonLoader/net6/0Harmony.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Il2CppInterop.Runtime"><HintPath>$(GameDir)/MelonLoader/net6/Il2CppInterop.Runtime.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Newtonsoft.Json"><HintPath>$(GameDir)/MelonLoader/net6/Newtonsoft.Json.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="$(GameDir)/MelonLoader/Il2CppAssemblies/Assembly-CSharp.dll;$(GameDir)/MelonLoader/Il2CppAssemblies/Il2Cppmscorlib.dll;$(GameDir)/MelonLoader/Il2CppAssemblies/Il2CppSystem*.dll;$(GameDir)/MelonLoader/Il2CppAssemblies/Unity*.dll"><Private>false</Private></Reference>
+  </ItemGroup>
+  <Target Name="ValidateLocalGameReferences" BeforeTargets="ResolveReferences">
+    <Error Condition="'$(GameDir)' == ''" Text="Set GameDir or CANEMALL_GAME_DIR to your local Can Em All installation." />
+    <Error Condition="!Exists('$(GameDir)/MelonLoader/net6/MelonLoader.dll')" Text="MelonLoader 0.7.3 references are missing. Install the tested loader in your local game first." />
+    <Error Condition="!Exists('$(MSBuildProjectDirectory)/FloorGeometry.json')" Text="Generate the local FloorGeometry.json with tools/export_floor_geometry.py before building. Generated game data is not tracked." />
+  </Target>
+</Project>
