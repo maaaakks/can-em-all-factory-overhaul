@@ -88,3 +88,13 @@ try{
  Check(Balance.Upgrades.All(u=>u.Name.All(c=>c<128)&&u.Description.All(c=>c<128))&&FactoryPlan.All.All(u=>u.Name.All(c=>c<128)&&u.Description.All(c=>c<128||c=='×'||c=='→')),"All custom permanent/run upgrade names and descriptions use English text and math symbols");
 }finally{System.Globalization.CultureInfo.CurrentCulture=previousCulture;}
 Console.WriteLine("ALL ENGLISH UI CHECKS PASSED");
+
+var preparation=new PreparationGate();
+Check(!preparation.TryFinish(false),"Idle preparation cannot release an unstarted day");
+preparation.Begin();Check(preparation.Waiting&&!preparation.TryFinish(false),"Opening the shop waits for an explicit start");
+preparation.RequestStart(true);Check(!preparation.TryFinish(false),"A click in a blocking panel cannot queue a delayed day start");
+preparation.RequestStart(false);Check(!preparation.TryFinish(true)&&preparation.Waiting,"The day cannot start while the prestige/pause panel is open");
+Check(preparation.TryFinish(false)&&!preparation.Waiting&&!preparation.TryFinish(false),"Explicit NEXT DAY releases preparation exactly once");
+preparation.Begin();preparation.RequestStart(false);preparation.Reset();Check(!preparation.Waiting&&!preparation.TryFinish(false),"Scene reset drops any pending start request");
+preparation.Begin();Check(preparation.Waiting&&!preparation.TryFinish(false),"A new game can prepare again without inheriting the old request");
+Console.WriteLine("ALL SHOP PREPARATION CHECKS PASSED");

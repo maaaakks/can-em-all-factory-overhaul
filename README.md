@@ -1,8 +1,8 @@
-# Can ’Em All — Factory Overhaul
+# Can ’Em All - Factory Overhaul
 
 An experimental progression and factory automation overhaul for **Can ’Em All**.
 
-**Current code version: 0.12.0 alpha.** Built with MelonLoader for the Windows Steam IL2CPP version of the game. The in-game assembly still uses the name **Permanent Upgrades Revamped**.
+**Current code version: 0.13.0 alpha.** Built with MelonLoader for the Windows Steam IL2CPP version of the game. The in-game assembly still uses the name **Permanent Upgrades Revamped**.
 
 > **Source preview:** this repository contains the mod source, English documentation and core checks. A player-ready installer and downloadable binary release have not been published. The custom in-game interface is in English.
 
@@ -29,13 +29,23 @@ An experimental progression and factory automation overhaul for **Can ’Em All*
 - English labels, descriptions, tooltips and batch controls, with English number formatting.
 - Rebuild scene-owned nodes, lighting and physics caches when starting a new game or reloading the factory.
 
+![Permanent Upgrades menu with all four upgrade groups](docs/images/permanent-upgrades-menu.png)
+
 ### Industrial suction and wider grinders
 
-- Replace moving sweepers with a permanent suction field.
+- Replace moving sweepers with industrial suction, purchased in **Permanent Upgrades > Grinders** through **Suction Range** and **Suction Power**.
 - Pull **dead bodies only** toward active grinders, with congestion-aware routing.
 - Upgrade suction to **26 m range** and **3 m/s target speed**.
 - Expand grinder openings up to **×2.25 width**, including floor visuals, collisions and capture volumes.
 - Resize locked grinder covers and their solid supports with the openings.
+
+#### Final optimization - maximum-width grinders
+
+Both screenshots show the final **Grinder Width** rank (**x2.25**), purchased in **Permanent Upgrades > Grinders**. The first view shows an empty opening; the second shows it processing a late-game load with industrial suction.
+
+![Maximum-width grinders - empty openings](docs/images/grinders-max-width-empty.png)
+
+![Maximum-width grinders - processing a late-game load](docs/images/grinders-max-width-processing.png)
 
 ### Physics and quality of life
 
@@ -45,6 +55,15 @@ An experimental progression and factory automation overhaul for **Can ’Em All*
 - Add blue lighting at night and restore daytime ambient lighting on the next transition.
 - Restrict widened grinder damage detection to the pit rather than the nearby walking surface.
 - Keep the buggy **Cold Storage** carry-over upgrade disabled.
+- Open the run shop before the first day when starting or continuing a game, and return to it after selling the factory. Spend starting cash and use **Buy Maximum** before pressing **NEXT DAY** or **Space** to begin.
+
+**Blue night lighting**
+
+![Factory at night with blue lighting](docs/images/blue-night-lighting.png)
+
+**Optimized conveyor transport**
+
+![Cans moving through the optimized conveyor network](docs/images/optimized-conveyors.png)
 
 ### Diagnostics and optimization
 
@@ -98,7 +117,7 @@ See [BUILDING.md](docs/BUILDING.md) for manual commands and dependencies.
 
 ## Installation of a locally built copy
 
-Close the game and copy `PermanentUpgradesRevamped.dll` from the build output into the game's `Mods` directory. Launch normally. The loader log should list **Permanent Upgrades Revamped v0.12.0**.
+Close the game and copy `PermanentUpgradesRevamped.dll` from the build output into the game's `Mods` directory. Launch normally. The loader log should list **Permanent Upgrades Revamped v0.13.0**.
 
 In the shop, open **PRESTIGE** or press **P**. Press **P** or **Escape** to close the panel. **Buy Maximum** belongs to the run skill-tree tab and spends run money, not prestige points. Ammunition capacity becomes available at the next normal rearm; it does not grant free ammunition when purchased.
 

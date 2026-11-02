@@ -5,7 +5,7 @@ using Newtonsoft.Json.Linq;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-[assembly: MelonInfo(typeof(PermanentUpgradesRevamped.Mod), "Permanent Upgrades Revamped", "0.12.0", "Max & Codex")]
+[assembly: MelonInfo(typeof(PermanentUpgradesRevamped.Mod), "Permanent Upgrades Revamped", "0.13.0", "Max & Codex")]
 [assembly: MelonGame("LuisDev", "Can 'Em All")]
 [assembly: HarmonyDontPatchAll]
 
@@ -146,6 +146,7 @@ public sealed class Mod : MelonMod
         if(GameManager.Instance!=null)return;
         FactoryExtension.ResetScene();FactorySafety.ResetScene();IndustrialSuction.ResetScene();
         ConveyorStability.ResetScene();IntakeGeometry.ResetScene();NativeUi.ResetScene();Specials.ResetScene();
+        ShopFirst.ResetScene();
         GameBonuses.Clear();AmmoBonuses.Clear();IncomeBonuses.Clear();MoveBonuses.Clear();StorageBonuses.Clear();BaseStorage.Clear();BonusOwner=null;NextScan=0;
         Self.LoggerInstance.Msg("Released factory scene caches: "+sceneName);
     }

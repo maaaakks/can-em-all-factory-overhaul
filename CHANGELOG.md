@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.13.0 - Shop-first starts and screenshot gallery
+
+- Open the run shop before starting the native day loop; NEXT DAY or Space begins the day after preparation.
+- Return to the run shop after selling the factory, preserving the native reset and starting-cash grant.
+- Document industrial suction as a permanent grinder upgrade.
+- Add five original-resolution gameplay screenshots and replace em dashes with simple hyphens.
+
 ## 0.12.0 - Scene reload fixes and English interface
 
 - Reset injected skill/turret registries per tree, fixing duplicate identity checks after a scene reload.
@@ -15,7 +22,7 @@
 - Save schema 6 preserves existing purchases and appends the new rank at zero.
 - Add rank, daily eligibility and migration regression checks.
 
-## 0.10.2 — Current experimental source snapshot
+## 0.10.2 - Current experimental source snapshot
 
 - Raise permanent can value to ×10 at rank 20, keeping the 2,100-point total and existing ranks. Full run can-value upgrades bring the final native multiplier to ×19.
 - Include the earlier performance cache improvements and 30-second performance/economy samples.

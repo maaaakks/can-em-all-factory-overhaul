@@ -1,4 +1,4 @@
-# Features and balance — 0.12.0
+# Features and balance - 0.13.0
 
 ## Permanent upgrade table
 
@@ -80,3 +80,13 @@ Every 30 seconds of active gameplay, loader logs report average/P95 frame times,
 All custom upgrade names, descriptions, statuses, tooltips and shop buttons are in English. Permanent numerical labels use invariant English formatting even on French Windows. Prices, progression tables, saved identifiers and schema 6 are unchanged.
 
 The factory extension clears its injected-node and turret registries for each new skill tree. Blue lighting follows the current lighting controller and ignores destroyed lights. Grinder, suction, conveyor and UI caches are rebuilt for the new scene rather than retaining destroyed Unity objects. These fixes target the duplicate-skill and destroyed-light errors seen after restarting a game. Compilation and core checks do not replace manual new-game/end-of-run testing.
+
+## Shop before the first day
+
+Starting or continuing a game opens the native run shop before the first day begins. Selling the factory returns to the run shop after the native reset and starting-cash grant. Use Buy Maximum or buy individual upgrades, access Permanent Upgrades with P, then press NEXT DAY or Space to begin. Preparing purchases does not advance the saved day, run the day timer, or trigger the first delivery. Space does not start the day while the prestige panel or pause menu is open.
+
+## Industrial suction and screenshots
+
+Industrial suction is a **Permanent Upgrades > Grinders** feature, upgraded through Suction Range and Suction Power. Grinder Width is in the same permanent group. Maximum-width openings are x2.25 at rank 6/6.
+
+Original-resolution screenshots are available in the [README](../README.md): the Permanent Upgrades menu, maximum-width grinders empty and processing bodies, blue night lighting, and optimized conveyors.

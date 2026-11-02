@@ -22,6 +22,7 @@ internal static class NativeUi
     static GameObject Root;
     static int LastBulkVisible=-1;
     static bool Opened, PreviousActive, PreviousPaused, ConfirmRefund;
+    internal static bool IsOpen=>Opened;
     static float PreviousAlpha, PreviousTime;
     static CursorLockMode PreviousCursor;
     static bool PreviousCursorVisible;
