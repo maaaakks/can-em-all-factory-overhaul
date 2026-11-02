@@ -1,8 +1,8 @@
-# Features and balance — 0.10.2
+# Features and balance — 0.11.0
 
 ## Permanent upgrade table
 
-There are 19 upgrades, with a combined maximum cost of **22,025 prestige points**. Prices and benefits are defined in `src/PermanentUpgradesRevamped/Balance.cs`.
+There are 20 upgrades, with a combined maximum cost of **23,400 prestige points**. Prices and benefits are defined in `src/PermanentUpgradesRevamped/Balance.cs`.
 
 | Group | Upgrade | Ranks | Maximum permanent effect |
 | --- | --- | ---: | --- |
@@ -25,6 +25,7 @@ There are 19 upgrades, with a combined maximum cost of **22,025 prestige points*
 | Special Bonuses | Opening Shockwave | 3 | 50% maximum HP damage to targets reached by the first-delivery wave |
 | Special Bonuses | First Blood | 1 | Native first ten hits are lethal effect |
 | Special Bonuses | Death Touch | 5 | +1 percentage point instant-death chance |
+| Special Bonuses | First Delivery Reinforcements | 10 | +50 monsters on the first delivery of each day |
 
 ### How bonuses combine
 
@@ -35,6 +36,8 @@ The maximum can-value permanent costs **2,100 points**. Ranks 0–10 retain the 
 Random probabilities are capped at **40% shiny**, **50% critical** and **5% instant death**, including run bonuses. Guaranteed Shiny Shipment and First Blood effects remain separate. The shiny chance upgrade affects truck creature rolls; the run tree also contains a separate shiny-can probability.
 
 Suction range I unlocks a 4 m field at a base target speed of 0.3 m/s. Power I raises the target speed to 0.45 m/s and requires range I. Acceleration is progressive; bodies retain gravity and physical collisions. Living creatures, held bodies and bodies already in free fall are excluded from pulling.
+
+First Delivery Reinforcements adds **+5 monsters per rank**, from +5 to +50. Prices are 25, 50, 75, 100, 125, 150, 175, 200, 225 and 250 prestige points (1,375 total). It stacks with the normal run-tree delivery size. The truck count and ordinary cap are restored after spawning, so later deliveries remain unchanged. Existing permanent ranks are retained and the new upgrade starts unpurchased when migrating to save schema 6.
 
 ## Run tree extensions
 

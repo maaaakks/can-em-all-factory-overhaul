@@ -5,7 +5,7 @@ using Newtonsoft.Json.Linq;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-[assembly: MelonInfo(typeof(PermanentUpgradesRevamped.Mod), "Permanent Upgrades Revamped", "0.10.2", "Max & Codex")]
+[assembly: MelonInfo(typeof(PermanentUpgradesRevamped.Mod), "Permanent Upgrades Revamped", "0.11.0", "Max & Codex")]
 [assembly: MelonGame("LuisDev", "Can 'Em All")]
 [assembly: HarmonyDontPatchAll]
 
@@ -38,7 +38,7 @@ public sealed class Mod : MelonMod
         LoadState();
         LoggerInstance.Msg("Patches installed explicitly: " + HarmonyLib.Harmony.GetAllPatchedMethods().Count(m => HarmonyLib.Harmony.GetPatchInfo(m)?.Owners.Contains(HarmonyInstance.Id) == true));
         LoggerInstance.Msg("PUR save: " + SaveFile);
-        LoggerInstance.Msg("Native save.sav is preserved. 19 permanent upgrades on one screen; ColdStorage disabled.");
+        LoggerInstance.Msg("Native save.sav is preserved. 20 permanent upgrades on one screen; ColdStorage disabled.");
     }
 
     internal static void LoadState()
@@ -50,7 +50,7 @@ public sealed class Mod : MelonMod
             var root = SaveMigration.Upgrade(original, out var scalingRefund,out var grinderRefund);
             root = RobotRetirement.Upgrade(root, out var robotRefund);
             if (!JToken.DeepEquals(original,root)) {
-                var backup = SaveFile + ".before-v0.10.0";
+                var backup = SaveFile + ".before-v0.11.0";
                 if (!File.Exists(backup)) File.Copy(SaveFile, backup);
                 var temp = SaveFile + ".migration.tmp"; File.WriteAllText(temp, root.ToString());
                 File.Replace(temp, SaveFile, SaveFile + ".bak");
@@ -59,7 +59,7 @@ public sealed class Mod : MelonMod
                 if (robotRefund > 0) Self.LoggerInstance.Msg($"Robot retirement: refunded {robotRefund} dollars to run money; retired robot IDs removed.");
             }
             if (root["pur"] is not JObject state) return;
-            if ((int?)state["schema"] != 5) throw new InvalidDataException("Unknown PUR save schema");
+            if ((int?)state["schema"] != 6) throw new InvalidDataException("Unknown PUR save schema");
             Ranks = state["ranks"]!.ToObject<int[]>()!;
             Balance.Validate(Ranks); Migrated = (bool?)state["migrated"] == true;
             Self.LoggerInstance.Msg("Loaded ranks: " + string.Join(",", Ranks));
@@ -71,7 +71,7 @@ public sealed class Mod : MelonMod
         if (Faulted || !Loaded || manager.CurrentSaveData == null) return;
         Balance.Validate(Ranks);
         var root = JObject.Parse(JsonUtility.ToJson(manager.CurrentSaveData, true));
-        root["pur"] = new JObject { ["schema"] = 5, ["migrated"] = Migrated, ["ranks"] = JArray.FromObject(Ranks) };
+        root["pur"] = new JObject { ["schema"] = 6, ["migrated"] = Migrated, ["ranks"] = JArray.FromObject(Ranks) };
         var temp = SaveFile + ".tmp";
         File.WriteAllText(temp, root.ToString());
         if (File.Exists(SaveFile)) File.Replace(temp, SaveFile, SaveFile + ".bak");

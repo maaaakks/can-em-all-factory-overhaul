@@ -12,8 +12,9 @@ public static class SaveMigration
         refund=0;cashRefund=0;var root=(JObject)original.DeepClone();
         if(root["pur"] is JObject state) {
             var schema=(int?)state["schema"];
-            if(schema==5){Balance.Validate(state["ranks"].ToObject<int[]>());return root;}
-            if(schema==4){refund=UpgradeLoadout(root);return root;}
+            if(schema==6){Balance.Validate(state["ranks"].ToObject<int[]>());return root;}
+            if(schema==5){UpgradeFirstDelivery(root);return root;}
+            if(schema==4){refund=UpgradeLoadout(root);UpgradeFirstDelivery(root);return root;}
             if(schema is not (1 or 2 or 3))throw new InvalidDataException("Unknown PUR save schema");
             var ranks=state["ranks"]?.ToObject<int[]>();
             if(ranks==null||ranks.Length!=6)throw new InvalidDataException("Invalid old rank count");
@@ -33,18 +34,26 @@ public static class SaveMigration
             root["unlockedSkills"]=JArray.FromObject(ids.Where(id=>!IsMoved(id)));
             if(cashRefund>0)root["money"]=checked(((long?)root["money"]??0)+cashRefund);
         }
-        refund=checked(refund+UpgradeLoadout(root));
+        refund=checked(refund+UpgradeLoadout(root));UpgradeFirstDelivery(root);
         return root;
     }
     static int UpgradeLoadout(JObject root)
     {
         if(root["pur"] is not JObject state||(int?)state["schema"]!=4)return 0;
         var old=state["ranks"]?.ToObject<int[]>();if(old==null||old.Length!=18)throw new InvalidDataException("Invalid old permanent ranks");
-        var next=new int[Balance.Upgrades.Length];Array.Copy(old,next,18);
+        var next=new int[19];Array.Copy(old,next,18);
         var endurance=old[12];if(endurance<0||endurance>10)throw new InvalidDataException("Invalid endurance rank");
-        next[12]=0;Balance.Validate(next);var refund=10*endurance*(endurance+1)/2;
+        next[12]=0;var padded=new int[Balance.Upgrades.Length];Array.Copy(next,padded,19);Balance.Validate(padded);var refund=10*endurance*(endurance+1)/2;
         root["upgradePoints"]=checked(((int?)root["upgradePoints"]??0)+refund);
         state["schema"]=5;state["ranks"]=JArray.FromObject(next);state["enduranceRefund"]=refund;
         return refund;
     }
+    static void UpgradeFirstDelivery(JObject root)
+    {
+        if(root["pur"] is not JObject state||(int?)state["schema"]!=5)return;
+        var old=state["ranks"]?.ToObject<int[]>();if(old==null||old.Length!=19)throw new InvalidDataException("Invalid schema 5 permanent ranks");
+        var next=new int[Balance.Upgrades.Length];Array.Copy(old,next,19);Balance.Validate(next);
+        state["schema"]=6;state["ranks"]=JArray.FromObject(next);
+    }
+
 }

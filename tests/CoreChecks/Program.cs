@@ -3,7 +3,7 @@ using Newtonsoft.Json.Linq;
 
 
 void Check(bool c,string m){if(!c)throw new Exception(m);Console.WriteLine("PASS "+m);}
-Check(Balance.Upgrades.Length==19&&Balance.Columns.SelectMany(c=>c).Order().SequenceEqual(Enumerable.Range(0,19)),"19 unique rows, all visible once");
+Check(Balance.Upgrades.Length==20&&Balance.Columns.SelectMany(c=>c).Order().SequenceEqual(Enumerable.Range(0,20)),"20 unique rows, all visible once");
 for(var col=0;col<4;col++)Check(Balance.Columns[col].Length<=6&&Balance.Columns[col].All(i=>Balance.Upgrades[i].Group==col),"Column "+col+" group consistency and at most six rows");
 Check(Balance.Value(12,0)==1&&Balance.Value(12,10)==2&&Balance.Upgrades[12].Prices.Sum()==550,"Vacuum cadence baseline 1x, maximum 2x, total 550 points");
 Check(Balance.Value(18,0)==1&&Balance.Value(18,20)==3&&Balance.Upgrades[18].Prices.Sum()==2100,"Player ammo baseline 1x, maximum 3x, total 2100 points");
@@ -13,12 +13,12 @@ for(var rank=0;rank<=10;rank++){
  var next=SaveMigration.Upgrade(source,out var refund,out var cash);
  var ranks=next["pur"]["ranks"].ToObject<int[]>();
  Check(refund==10*rank*(rank+1)/2&&cash==0&&(int)next["upgradePoints"]==1000+refund,"Exact endurance refund rank "+rank);
- Check(ranks.Length==19&&ranks[12]==0&&ranks[18]==0&&Enumerable.Range(0,18).Where(i=>i!=12).All(i=>ranks[i]==old[i]),"Only endurance replaced; every other permanent rank retained");
- var again=SaveMigration.Upgrade(next,out var refund2);Check(refund2==0&&JToken.DeepEquals(next,again),"Schema 5 restart cannot refund twice");
+ Check(ranks.Length==20&&ranks[12]==0&&ranks[18]==0&&Enumerable.Range(0,18).Where(i=>i!=12).All(i=>ranks[i]==old[i]),"Only endurance replaced; every other permanent rank retained");
+ var again=SaveMigration.Upgrade(next,out var refund2);Check(refund2==0&&JToken.DeepEquals(next,again),"Schema 6 restart cannot refund twice");
  Check((long)next["money"]==123456&&(long)next["totalMoney"]==98765&&JToken.DeepEquals(source["unlockedSkills"],next["unlockedSkills"]),"Run money, earned revenue and run skills preserved");
 }
-var legacy=JObject.FromObject(new{upgradePoints=0,pur=new{schema=3,migrated=true,ranks=new[]{12,12,12,9,6,6},specials=Enumerable.Repeat(true,8).ToArray()}});var converted=SaveMigration.Upgrade(legacy,out var legacyRefund);Check(legacyRefund==3227&&(int)converted["pur"]["schema"]==5&&converted["pur"]["ranks"].ToObject<int[]>().Length==19,"Old six-rank schema migrates directly to latest schema");
-Check(Balance.Refund(Balance.Upgrades.Select(u=>u.Cap).ToArray())==22025,"New complete permanent budget 22,025 points");
+var legacy=JObject.FromObject(new{upgradePoints=0,pur=new{schema=3,migrated=true,ranks=new[]{12,12,12,9,6,6},specials=Enumerable.Repeat(true,8).ToArray()}});var converted=SaveMigration.Upgrade(legacy,out var legacyRefund);Check(legacyRefund==3227&&(int)converted["pur"]["schema"]==6&&converted["pur"]["ranks"].ToObject<int[]>().Length==20,"Old six-rank schema migrates directly to latest schema");
+Check(Balance.Refund(Balance.Upgrades.Select(u=>u.Cap).ToArray())==23400,"New complete permanent budget 23,400 points");
 Console.WriteLine("ALL LOADOUT CHECKS PASSED");
 
 Check(Balance.Value(2,10)==2&&Balance.Value(2,15)==6&&Balance.Value(2,20)==10&&Balance.Upgrades[2].Prices.Sum()==2100,"Income revised: rank 10 x2, rank 15 x6, rank 20 x10, same 2100-point total");
@@ -62,3 +62,20 @@ var retired=RobotRetirement.Upgrade(oldRobots,out var robotRefund);
 Check(robotRefund==261275000L&&(long)retired["totalMoney"]==100,"Robot refund preserves earned-revenue statistics");
 var twice=RobotRetirement.Upgrade(retired,out var twiceRefund);Check(twiceRefund==0&&JToken.DeepEquals(retired,twice),"Robot retirement is idempotent");
 Console.WriteLine("ALL CORE CHECKS PASSED");
+
+Check(Balance.Upgrades[19].Group==3&&Balance.Upgrades[19].Cap==10&&Balance.Upgrades[19].Prices.Sum()==1375,"First delivery: special bonus, ten ranks, 1375-point total");
+for(var rank=0;rank<=10;rank++)Check(Balance.Value(19,rank)==rank*5&&FirstDeliveryRules.ExtraMonsters(rank)==rank*5&&FirstDeliveryRules.SpawnCount(60,rank)==60+rank*5,"First delivery adds exactly five monsters per rank "+rank);
+var daily=new DailyDeliveryTracker();Check(daily.IsFirst(4),"First spawn of a day is eligible");
+daily.Complete(4);Check(!daily.IsFirst(4),"Later deliveries cannot receive the bonus again");
+Check(daily.IsFirst(5),"Next day makes a new first delivery eligible");
+daily.Complete(5);daily.Reset();Check(daily.IsFirst(5),"Factory reset re-arms the bonus even when the day number is reused");
+var uncompleted=new DailyDeliveryTracker();Check(uncompleted.IsFirst(1)&&uncompleted.IsFirst(1),"An unsuccessful spawn does not consume the bonus before Complete");
+var previousRanks=Balance.Upgrades.Take(19).Select(u=>u.Cap).ToArray();
+var schema5=JObject.FromObject(new{money=200L,upgradePoints=1000,pur=new{schema=5,migrated=true,ranks=previousRanks},unlockedSkills=new[]{1,2,10001}});
+var schema6=SaveMigration.Upgrade(schema5,out var newRefund,out var cashRefund);
+var expanded=schema6["pur"]["ranks"].ToObject<int[]>();
+Check(newRefund==0&&cashRefund==0&&(int)schema6["upgradePoints"]==1000&&expanded.Length==20&&expanded[19]==0&&expanded.Take(19).SequenceEqual(previousRanks),"Schema 5 migration preserves all purchases/points and appends an unpurchased bonus");
+Check((int)schema5["pur"]["schema"]==5&&(int)schema6["pur"]["schema"]==6,"Migration clones its input and records schema 6");
+var repeated=SaveMigration.Upgrade(schema6,out var repeatedRefund);Check(repeatedRefund==0&&JToken.DeepEquals(schema6,repeated),"New bonus migration is idempotent");
+try{FirstDeliveryRules.ExtraMonsters(11);throw new Exception("Over-cap first-delivery rank accepted");}catch(ArgumentOutOfRangeException){}
+Console.WriteLine("ALL FIRST-DELIVERY CHECKS PASSED");

@@ -9,6 +9,7 @@ internal static class Specials
     static int SeenDay=-1;static bool DeliverySeen;static Enemy[] Pending;static float WaveFraction;
     static readonly Dictionary<IntPtr,float> StartingWaves=new();
     static float WaveScope;
+    static readonly DailyDeliveryTracker FirstDelivery=new();
     internal static void Apply()
     {
         if(!Enabled)return;
@@ -42,7 +43,7 @@ internal static class Specials
     [HarmonyPatch(typeof(Truck),"ReleaseEnemies")]
     static class DeliveryPatch {static void Postfix(Truck __instance){if(!Enabled)return;var day=SaveManager.Instance.CurrentSaveData.day;if(day!=SeenDay){SeenDay=day;DeliverySeen=false;}if(DeliverySeen)return;DeliverySeen=true;if(Mod.Ranks[15]>0){Pending=__instance.spawnedEnemies.ToArray();WaveFraction=Bonus(15)/100;}}}
     [HarmonyPatch(typeof(GameManager),"ResetToDefaultValues")]
-    static class ResetPatch {static void Postfix(){SeenDay=-1;DeliverySeen=false;Pending=null;}}
+    static class ResetPatch {static void Postfix(){SeenDay=-1;DeliverySeen=false;Pending=null;FirstDelivery.Reset();}}
     [HarmonyPatch(typeof(Shockwave),"DamageEnemies")]
     static class WaveScopePatch {
         static void Prefix(Shockwave __instance,out float __state){__state=WaveScope;WaveScope=StartingWaves.TryGetValue(__instance.Pointer,out var fraction)?fraction:0;}
@@ -54,10 +55,23 @@ internal static class Specials
     static class WaveDamagePatch {static void Prefix(Enemy __instance,ref float damage){if(WaveScope>0)damage=__instance.maxHealth*WaveScope;}}
     [HarmonyPatch(typeof(Enemy),"ApplyDamagedDelivery")]
     static class FragilePatch {static bool Prefix(Enemy __instance){if(!Enabled)return true;var fraction=Bonus(14)/100;__instance.health=__instance.maxHealth*(1-fraction);__instance.SetGlobalDamageVisual(fraction);return false;}}
+    struct SpawnState {public float Shiny;public int Count,Max,Day,Extra;public bool First;}
     [HarmonyPatch(typeof(Truck),"SpawnEnemiesInsideTruck")]
-    static class ShinyPatch {
-        static void Prefix(Truck __instance,out float __state){__state=__instance.shinyProbability;if(Enabled)__instance.shinyProbability=EffectsRules.Chance(__state,Bonus(6)/100,.4f);}
-        static void Finalizer(Truck __instance,float __state){__instance.shinyProbability=__state;}
+    static class SpawnPatch {
+        static void Prefix(Truck __instance,out SpawnState __state){
+            __state=new SpawnState{Shiny=__instance.shinyProbability,Count=__instance.enemyCount,Max=__instance.maxEnemyCount};
+            if(!Enabled||SaveManager.Instance?.CurrentSaveData==null)return;
+            __instance.shinyProbability=EffectsRules.Chance(__state.Shiny,Bonus(6)/100,.4f);
+            __state.Day=SaveManager.Instance.CurrentSaveData.day;__state.First=FirstDelivery.IsFirst(__state.Day);
+            if(!__state.First)return;
+            __state.Extra=FirstDeliveryRules.ExtraMonsters(Mod.Ranks[19]);
+            __instance.enemyCount=FirstDeliveryRules.SpawnCount(__state.Count,Mod.Ranks[19]);
+            __instance.maxEnemyCount=Math.Max(__state.Max,__instance.enemyCount);
+        }
+        static void Finalizer(Truck __instance,SpawnState __state,Exception __exception){
+            __instance.shinyProbability=__state.Shiny;__instance.enemyCount=__state.Count;__instance.maxEnemyCount=__state.Max;
+            if(__exception==null&&__state.First){FirstDelivery.Complete(__state.Day);if(__state.Extra>0)Mod.Self.LoggerInstance.Msg($"First delivery of day {__state.Day}: +{__state.Extra} monsters; normal {__state.Count}, spawned {__instance.spawnedEnemies.Count}; ordinary truck count restored.");}
+        }
     }
     struct HitState {public float Crit,CritMultiplier,Death,DeathMultiplier;}
     [HarmonyPatch(typeof(GameManager),"OnHitEnemy")]

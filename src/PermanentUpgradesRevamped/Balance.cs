@@ -14,7 +14,7 @@ public static class Balance
     static double[] Milestones(double first,double middle,double last)
     {var a=new double[21];a[0]=1;for(var r=1;r<=10;r++)a[r]=Math.Round(first+(middle-first)*(r-1)/9,4);for(var r=11;r<=20;r++)a[r]=Math.Round(middle+(last-middle)*(r-10)/10,4);return a;}
     public static readonly string[] Groups={"RENTABILITÉ","BROYEURS","PERSONNEL","BONUS SPÉCIAUX"};
-    public static readonly int[][] Columns={new[]{0,2,6,7},new[]{8,3,9,10},new[]{1,5,4,12,18,11},new[]{13,14,15,16,17}};
+    public static readonly int[][] Columns={new[]{0,2,6,7},new[]{8,3,9,10},new[]{1,5,4,12,18,11},new[]{13,14,15,16,17,19}};
     public static readonly Upgrade[] Upgrades={
         new("Capital de départ","$",0,"Argent accordé après la vente de l'usine, lors de la reprise. Le prochain achat ne verse pas d'argent immédiatement.",new double[]{0,100,300,700,1500,3000,5000,8000,12000,18000,25000,40000,60000,85000,110000,150000,225000,325000,475000,700000,1000000},Prices(20,5)),
         new("Dégâts","×",2,"Bonus permanent aux dégâts, ajouté aux bonus de l'arbre de partie.",Milestones(1.15,2.5,8),Prices(20,10)),
@@ -34,13 +34,14 @@ public static class Balance
         new("Onde de départ","%",3,"Une impulsion sur la première livraison de chaque journée : 20 / 35 / 50 % des PV maximum. Aucun cumul de critiques ou de dégâts permanents.",new double[]{0,20,35,50},new[]{60,150,350}),
         new("Premier sang","unlock",3,"Effet First Blood natif : les dix premières touches de la journée sont mortelles. Achat unique.",new double[]{0,1},new[]{200}),
         new("Toucher mortel","pp",3,"+0,2 point de pourcentage par rang. Probabilité finale plafonnée à 5 %, arbre compris. Premier sang reste un effet garanti distinct.",Linear(5,0,1),Prices(5,50)),
-        new("Munitions du joueur","×",2,"Réserve des armes du joueur : +10 % de la capacité de base par rang, jusqu’à ×3. Bonus ajouté à ceux de l’arbre, appliqué au prochain réarmement. Les tourelles et le stockage du vacuum ont leurs propres améliorations.",Linear(20,1,3),Prices(20,10))
+        new("Munitions du joueur","×",2,"Réserve des armes du joueur : +10 % de la capacité de base par rang, jusqu’à ×3. Bonus ajouté à ceux de l’arbre, appliqué au prochain réarmement. Les tourelles et le stockage du vacuum ont leurs propres améliorations.",Linear(20,1,3),Prices(20,10)),
+        new("Première livraison renforcée","monsters",3,"Ajoute 5 monstres par rang à la première livraison de chaque journée, jusqu’à +50. Le bonus se cumule avec la taille de livraison achetée dans l’arbre. Les livraisons suivantes gardent leur quantité normale.",Linear(10,0,50),Prices(10,25))
     };
     public static double Value(int index,int rank)=>Upgrades[index].Values[rank];
     public static int Price(int index,int rank)=>Upgrades[index].Prices[rank];
     public static bool CanPurchase(int index,int[] ranks)=>index!=10||ranks[9]>0;
     public static int Refund(int[] ranks){Validate(ranks);return ranks.Select((rank,i)=>Upgrades[i].Prices.Take(rank).Sum()).Sum();}
     public static string Display(int index,int rank)
-    {var value=Value(index,rank);return Upgrades[index].Unit switch {"$"=>$"{value:N0} $","×"=>$"×{value:0.##}","pp"=>$"+{value:0.#} pts %","m"=>rank==0?"INACTIF":$"{value:0.#} m","m/s"=>$"{value:0.##} m/s","unlock"=>rank==0?"À DÉBLOQUER":"ACQUIS",_=>$"{(index is 12 or 14?"−":"+")}{value:0.#} %"};}
+    {var value=Value(index,rank);return Upgrades[index].Unit switch {"$"=>$"{value:N0} $","×"=>$"×{value:0.##}","pp"=>$"+{value:0.#} pts %","m"=>rank==0?"INACTIF":$"{value:0.#} m","m/s"=>$"{value:0.##} m/s","unlock"=>rank==0?"À DÉBLOQUER":"ACQUIS","monsters"=>$"+{value:0} monstres",_=>$"{(index is 12 or 14?"−":"+")}{value:0.#} %"};}
     public static void Validate(int[] ranks){if(ranks==null||ranks.Length!=Upgrades.Length||ranks.Where((r,i)=>r<0||r>Upgrades[i].Cap).Any()||ranks[10]>0&&ranks[9]==0)throw new InvalidDataException("Invalid PUR ranks; refusing to overwrite save.");}
 }

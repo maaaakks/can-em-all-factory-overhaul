@@ -3,6 +3,7 @@
     <OutputType>Exe</OutputType><TargetFramework>net8.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="../../src/PermanentUpgradesRevamped/FirstDeliveryRules.cs" Link="FirstDeliveryRules.cs" />
     <Compile Include="../../src/PermanentUpgradesRevamped/Balance.cs" Link="Balance.cs" />
     <Compile Include="../../src/PermanentUpgradesRevamped/SaveMigration.cs" Link="SaveMigration.cs" />
     <Compile Include="../../src/PermanentUpgradesRevamped/RobotRetirement.cs" Link="RobotRetirement.cs" />

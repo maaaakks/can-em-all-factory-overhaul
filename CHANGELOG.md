@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.11.0 - First delivery reinforcements
+
+- Add a Special Bonuses permanent: +5 monsters per rank on the first delivery of each day, up to +50.
+- Ten ranks cost 25 to 250 points (1,375 total). Later deliveries retain their normal size.
+- Save schema 6 preserves existing purchases and appends the new rank at zero.
+- Add rank, daily eligibility and migration regression checks.
+
 ## 0.10.2 — Current experimental source snapshot
 
 - Raise permanent can value to ×10 at rank 20, keeping the 2,100-point total and existing ranks. Full run can-value upgrades bring the final native multiplier to ×19.

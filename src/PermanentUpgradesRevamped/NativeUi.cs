@@ -40,7 +40,7 @@ internal static class NativeUi
         var rootRect = Root.GetComponent<RectTransform>();
         rootRect.anchorMin=Vector2.zero; rootRect.anchorMax=Vector2.one; rootRect.offsetMin=Vector2.zero; rootRect.offsetMax=Vector2.zero;
         var originals=manager.nodes.ToArray();
-        var sourceIds=new[]{SkillId.StartingCashI,SkillId.BruteForceI,SkillId.ProfitBoostI,SkillId.GrinderSpeed,SkillId.NeverSkipLegs,SkillId.NeverSkipLegs,SkillId.ShinyShipment,SkillId.LuxuryCans,SkillId.GrinderSpeed,SkillId.GrinderSpeed,SkillId.GrinderSpeed,SkillId.LuckyHits,SkillId.NeverSkipLegs,SkillId.ShinyShipment,SkillId.DamagedDelivery,SkillId.StartingShockwave,SkillId.FirstBlood,SkillId.DeathTouch,SkillId.BruteForceI};
+        var sourceIds=new[]{SkillId.StartingCashI,SkillId.BruteForceI,SkillId.ProfitBoostI,SkillId.GrinderSpeed,SkillId.NeverSkipLegs,SkillId.NeverSkipLegs,SkillId.ShinyShipment,SkillId.LuxuryCans,SkillId.GrinderSpeed,SkillId.GrinderSpeed,SkillId.GrinderSpeed,SkillId.LuckyHits,SkillId.NeverSkipLegs,SkillId.ShinyShipment,SkillId.DamagedDelivery,SkillId.StartingShockwave,SkillId.FirstBlood,SkillId.DeathTouch,SkillId.BruteForceI,SkillId.ShinyShipment};
         var panelSize=rootRect.rect.size;
         for(var col=0;col<4;col++) {
             Panel(Root.transform,"PUR_Column_"+col,new Vector2(.14f+col*.24f,.48f),new Vector2(panelSize.x*.23f,panelSize.y*.66f),PanelGreen);
@@ -73,7 +73,7 @@ internal static class NativeUi
             progress.rectTransform.pivot=new Vector2(0,.5f);progress.rectTransform.anchorMin=progress.rectTransform.anchorMax=new Vector2(0,.5f);progress.rectTransform.anchoredPosition=Vector2.zero;
             Progress.Add(progress);
             Cards.Add(card);Bonuses.Add(bonus);RankLabels.Add(rankLabel);
-            var iconId=i==4?214:i is 9 or 10?214:i==8?155:i==12?192:i==18?46:-1;
+            var iconId=i==4?214:i is 9 or 10?214:i==8?155:i==12?192:i==18?46:i==19?66:-1;
             if(iconId>=0&&manager.skillTree!=null){var icon=manager.skillTree.GetComponentsInChildren<SkillNode>(true).FirstOrDefault(n=>n.skill!=null&&(int)n.skill.skillId==iconId);if(icon!=null)card.icon.sprite=icon.icon.sprite;}
         }
         GroupHeaders.Clear();
@@ -130,7 +130,7 @@ internal static class NativeUi
         Place(Close.GetComponent<RectTransform>(),new Vector2(.85f,.055f),new Vector2(160,32));
         Place(Refund.GetComponent<RectTransform>(),new Vector2(.24f,.055f),new Vector2(290,32));
         Root.transform.SetAsLastSibling();Access.transform.SetAsLastSibling();
-        Mod.Self.LoggerInstance.Msg("Native UI built: 19 permanent rows, padded dark columns, visible icons/progress/description; batch shop controls added.");
+        Mod.Self.LoggerInstance.Msg("Native UI built: 20 permanent rows, padded dark columns, visible icons/progress/description; batch shop controls added.");
         Refresh();
     }
 
