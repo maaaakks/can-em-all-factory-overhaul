@@ -29,11 +29,17 @@ internal static class NativeUi
     static readonly Color Cream = new(.90f,.88f,.76f,1);
     static readonly Color Orange = new(1,.66f,.12f,1);
 
+    internal static void ResetScene()
+    {
+        Actions.Clear();Cards.Clear();Bonuses.Clear();RankLabels.Clear();Progress.Clear();GroupHeaders.Clear();TemporarilyHidden.Clear();
+        Manager=null;Root=null;Access=Close=Refund=BulkBuy=null;Tooltip=null;
+        Opened=ConfirmRefund=false;LastBulkVisible=-1;
+    }
     internal static void Ensure(PermanentUpgradeManager manager)
     {
         if (Root != null && Manager == manager) return;
         if (manager.nodes == null || manager.nodes.Length < 1) return;
-        Manager = manager; Cards.Clear(); Bonuses.Clear(); RankLabels.Clear(); Progress.Clear();Actions.Clear();
+        ResetScene();Manager = manager;
         var panel = manager.permanentUpgradePanel.transform;
         Root = new GameObject("PUR_NativeCards", new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray<Il2CppSystem.Type>(new[] { Il2CppInterop.Runtime.Il2CppType.Of<RectTransform>() }));
         Root.transform.SetParent(panel,false);
@@ -82,7 +88,7 @@ internal static class NativeUi
             Place(heading.rectTransform,new Vector2(.14f+col*.24f,.77f),new Vector2(panelSize.x*.22f,panelSize.y*.045f));GroupHeaders.Add(heading);
         }
         Panel(Root.transform,"PUR_DescriptionPanel",new Vector2(.5f,.112f),new Vector2(panelSize.x*.95f,panelSize.y*.065f),PanelGreen);
-        Tooltip=Object.Instantiate(Cards[0].titleText,Root.transform);Tooltip.text="Survolez une amélioration pour afficher ses détails.";Tooltip.alignment=TextAlignmentOptions.Center;Tooltip.fontSizeMin=9;Tooltip.fontSizeMax=12;Tooltip.overflowMode=TextOverflowModes.Truncate;Tooltip.raycastTarget=false;Tooltip.color=Cream;Tooltip.enableWordWrapping=true;
+        Tooltip=Object.Instantiate(Cards[0].titleText,Root.transform);Tooltip.text="Hover over an upgrade to view its details.";Tooltip.alignment=TextAlignmentOptions.Center;Tooltip.fontSizeMin=9;Tooltip.fontSizeMax=12;Tooltip.overflowMode=TextOverflowModes.Truncate;Tooltip.raycastTarget=false;Tooltip.color=Cream;Tooltip.enableWordWrapping=true;
         Place(Tooltip.rectTransform,new Vector2(.5f,.115f),new Vector2(panelSize.x*.90f,panelSize.y*.055f));
         // Hide the original graph's container, retaining its objects for price/refund lookup.
         foreach(var node in originals) if(node != null) {
@@ -101,7 +107,7 @@ internal static class NativeUi
         var canvas=manager.permanentUpgradePanel.GetComponentInParent<Canvas>();
         Access=Clone(originals[0],canvas.transform,"PUR_Open",100);
         if(creamIcon!=null) Access.icon.sprite=creamIcon.sprite;
-        Access.titleText.text="PERMANENTS · P"; Access.titleText.fontSize=11; Access.titleText.enableAutoSizing=true;
+        Access.titleText.text="PRESTIGE · P"; Access.titleText.fontSize=11; Access.titleText.enableAutoSizing=true;
         Access.priceButton.gameObject.SetActive(false);
         Place(Access.GetComponent<RectTransform>(),new Vector2(1,1),new Vector2(125,38),new Vector2(-86,-100));
         FillBackground(Access);
@@ -115,7 +121,7 @@ internal static class NativeUi
         AddWholeCardButton(BulkBuy,()=>{BulkPurchase.Buy();Refresh();});
         Close=Clone(originals[0],Root.transform,"PUR_Close",101);
         Close.icon.gameObject.SetActive(false); Close.priceButton.gameObject.SetActive(false);
-        Close.titleText.text="FERMER [P]"; Close.titleText.fontSize=14;Close.titleText.alignment=TextAlignmentOptions.Center;
+        Close.titleText.text="CLOSE [P]"; Close.titleText.fontSize=14;Close.titleText.alignment=TextAlignmentOptions.Center;
         Place(Close.titleText.rectTransform,new Vector2(.5f,.5f),new Vector2(145,30));
         Place(Close.GetComponent<RectTransform>(),new Vector2(.83f,.12f),new Vector2(160,40));
         FillBackground(Close);
@@ -213,21 +219,21 @@ internal static class NativeUi
             Cards[i].gameObject.SetActive(true);Cards[i].titleText.text=upgrade.Name;
             var chance=Specials.FinalChance(i);
             RankLabels[i].text=$"{rank}/{upgrade.Cap}"+(chance.Length>0?" · "+chance:"");
-            Bonuses[i].text=upgrade.Unit=="unlock"?(max?"ACQUIS":"ACHAT UNIQUE"):Balance.Display(i,rank)+(max?" · MAX":" → "+Balance.Display(i,rank+1));
+            Bonuses[i].text=upgrade.Unit=="unlock"?(max?"OWNED":"ONE-TIME"):Balance.Display(i,rank)+(max?" · MAX":" → "+Balance.Display(i,rank+1));
             var dependency=Balance.CanPurchase(i,Mod.Ranks);
-            Cards[i].priceText.text=max?"MAX":!dependency?"PORTÉE I":Balance.Price(i,rank).ToString("N0")+" P";
+            Cards[i].priceText.text=max?"MAX":!dependency?"RANGE I":Balance.Price(i,rank).ToString("N0",System.Globalization.CultureInfo.InvariantCulture)+" P";
             var affordable=Mod.CanShop()&&!max&&dependency&&SaveManager.Instance.CurrentSaveData.upgradePoints>=Balance.Price(i,rank);
             Cards[i].priceButton.color=affordable?Orange:new Color(.5f,.5f,.40f,1);
             foreach(var button in Cards[i].GetComponentsInChildren<Button>(true))button.interactable=affordable;
         }
-        Refund.titleText.text=ConfirmRefund?"CONFIRMER LE REMBOURSEMENT":"REDISTRIBUER MES POINTS";
-        Close.titleText.text="FERMER [P]";Access.titleText.text="PERMANENTS · P";
+        Refund.titleText.text=ConfirmRefund?"CONFIRM REFUND":"REFUND ALL POINTS";
+        Close.titleText.text="CLOSE [P]";Access.titleText.text="PRESTIGE · P";
         var bulkVisible=CanBulkShop();BulkBuy.gameObject.SetActive(bulkVisible);
         if(LastBulkVisible!=(bulkVisible?1:0)){LastBulkVisible=bulkVisible?1:0;Mod.Self.LoggerInstance.Msg("Bulk controls: "+(bulkVisible?"visible in native shop":"hidden outside native shop"));}
         if(bulkVisible) {
             var preview=BulkPurchase.Preview();var enough=MoneyManager.Instance!=null&&MoneyManager.Instance.Money>=preview.Cost;
-            BulkBuy.titleText.text=preview.Ids.Length==0?"AUCUN ACHAT POSSIBLE":$"ACHETER AU MAXIMUM\n{preview.Ids.Length} achats · {preview.Cost:N0} $";
-            if(!enough)BulkBuy.titleText.text+=" · FONDS INSUFFISANTS";
+            BulkBuy.titleText.text=preview.Ids.Length==0?"NO UPGRADES AVAILABLE":FormattableString.Invariant($"BUY MAXIMUM\n{preview.Ids.Length} upgrades · ${preview.Cost:N0}");
+            if(!enough)BulkBuy.titleText.text+=" · INSUFFICIENT FUNDS";
             BulkBuy.GetComponent<Button>().interactable=preview.Ids.Length>0&&enough&&!BulkPurchase.Running;
         }
         Close.gameObject.SetActive(Opened);
@@ -254,7 +260,7 @@ internal static class NativeUi
     static void Hover(PermanentUpgrade card,bool enter) {
         if(Tooltip==null)return;
         if(enter&&Actions.TryGetValue(card.Pointer,out var index)&&index>=0&&index<Balance.Upgrades.Length)Tooltip.text=Balance.Upgrades[index].Description;
-        else Tooltip.text="Survolez une amélioration pour afficher ses détails.";
+        else Tooltip.text="Hover over an upgrade to view its details.";
     }
     static void RefundClick() { if(!Mod.CanShop())return; if(ConfirmRefund) {Mod.Respec();ConfirmRefund=false;}else ConfirmRefund=true; Refresh(); }
 

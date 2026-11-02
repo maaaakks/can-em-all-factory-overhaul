@@ -10,6 +10,10 @@ internal static class Specials
     static readonly Dictionary<IntPtr,float> StartingWaves=new();
     static float WaveScope;
     static readonly DailyDeliveryTracker FirstDelivery=new();
+    internal static void ResetScene()
+    {
+        SeenDay=-1;DeliverySeen=false;Pending=null;StartingWaves.Clear();WaveScope=0;FirstDelivery.Reset();
+    }
     internal static void Apply()
     {
         if(!Enabled)return;
@@ -19,10 +23,10 @@ internal static class Specials
     }
     internal static string FinalChance(int index)
     {
-        if(index==6&&Truck.Instance!=null)return $"final : {EffectsRules.Chance(Truck.Instance.shinyProbability,Bonus(6)/100,.4f)*100:0.#} %";
+        if(index==6&&Truck.Instance!=null)return $"total: {EffectsRules.Chance(Truck.Instance.shinyProbability,Bonus(6)/100,.4f)*100:0.#} %";
         var gm=GameManager.Instance;
-        if(gm!=null&&index==11)return $"final : {EffectsRules.Chance(gm.criticProbability*gm.criticProbabilityMultiplier,Bonus(11)/100,.5f)*100:0.#} %";
-        if(gm!=null&&index==17)return $"final : {EffectsRules.Chance(gm.instantDeathProbability*gm.instantDeathProbabilityMultiplier,Bonus(17)/100,.05f)*100:0.#} %";
+        if(gm!=null&&index==11)return $"total: {EffectsRules.Chance(gm.criticProbability*gm.criticProbabilityMultiplier,Bonus(11)/100,.5f)*100:0.#} %";
+        if(gm!=null&&index==17)return $"total: {EffectsRules.Chance(gm.instantDeathProbability*gm.instantDeathProbabilityMultiplier,Bonus(17)/100,.05f)*100:0.#} %";
         return "";
     }
     internal static void Tick()

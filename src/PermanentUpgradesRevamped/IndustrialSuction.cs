@@ -10,6 +10,7 @@ internal static class IndustrialSuction
     static readonly Dictionary<IntPtr,Body> PreviousBodies=new();
     static readonly List<IntakeGeometry.Intake> ActiveIntakes=new();
     static readonly HashSet<IntPtr> ActiveProcessors=new();
+    static GameManager Owner;
     static float NextScan;
     static float NextRoute,NextAudit;
     static readonly Dictionary<IntakeGeometry.Intake,int> QueueCounts=new();
@@ -32,6 +33,11 @@ internal static class IndustrialSuction
         body.Sliding=enabled;
     }
 
+    internal static void ResetScene()
+    {
+        Bodies.Clear();PreviousBodies.Clear();ActiveIntakes.Clear();ActiveProcessors.Clear();QueueCounts.Clear();Pulled.Clear();
+        Owner=null;SlideMaterial=null;MaterialChecked=SawPull=false;NextScan=NextRoute=NextAudit=0;LastCount=0;
+    }
     internal static void Configure()
     {
         var enabled=Mod.Migrated&&!Mod.Faulted&&Mod.Ranks[9]>0;
@@ -46,6 +52,7 @@ internal static class IndustrialSuction
     internal static void FixedTick()
     {
         var gm=GameManager.Instance;
+        if(Owner!=gm){ResetScene();Owner=gm;}
         if(Range<=0||Speed<=0||gm==null||Time.timeScale==0||gm.IsPaused||gm.IsGameOver){foreach(var body in Bodies)Sliding(body,false);return;}
         if(!MaterialChecked) {
             MaterialChecked=true;SlideMaterial=Resources.FindObjectsOfTypeAll<PhysicsMaterial>().FirstOrDefault(m=>m.name=="Slippery");

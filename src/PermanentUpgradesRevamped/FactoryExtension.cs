@@ -22,14 +22,23 @@ internal static class FactoryExtension
     static IntPtr LastManager;
     static HashSet<int> Owned=new();
 
+    internal static void ResetScene()
+    {
+        Tree=null;Building=Failed=PoolsReady=false;NextRefresh=0;
+        NewNodes.Clear();ExtraTurrets.Clear();NativeTurrets.Clear();Owned.Clear();
+        AppliedAmmo=0;LastManager=IntPtr.Zero;LastFleet="";
+    }
+
     internal static void Ensure(SkillTreeView tree)
     {
-        if(tree==null||Building||Failed||Tree==tree)return;
-        Building=true;
+        if(tree==null||Building)return;
+        if(Tree==tree)return;
+        // A destroyed scene leaves managed wrappers behind. A new tree owns new nodes and pools.
+        ResetScene();Tree=tree;Building=true;
         try {
             var original=tree.nodes?.ToArray();
             if(original==null||original.Length==0)original=tree.GetComponentsInChildren<SkillNode>(true).ToArray();
-            if(original.Length==0)return;
+            if(original.Length==0){Tree=null;return;}
             var byId=original.Where(n=>n!=null&&n.skill!=null).GroupBy(n=>(int)n.skill.skillId).ToDictionary(g=>g.Key,g=>g.First());
             foreach(var node in original) if(Retired((int)node.skill.skillId))node.gameObject.SetActive(false);
             var kept=original.Where(n=>!Retired((int)n.skill.skillId)).ToArray();
@@ -129,12 +138,12 @@ internal static class FactoryExtension
 
     internal static void Tick()
     {
-        if(Failed||Time.unscaledTime<NextRefresh)return;NextRefresh=Time.unscaledTime+.5f;
+        if(Time.unscaledTime<NextRefresh)return;NextRefresh=Time.unscaledTime+.5f;
         try {
             var gm=GameManager.Instance;
             if(gm==null||SaveManager.Instance?.CurrentSaveData==null)return;
-            if(Tree==null)Ensure(gm.skillTreeView);
-            if(Tree==null)return;
+            if(Tree!=gm.skillTreeView)Ensure(gm.skillTreeView);
+            if(Tree==null||Failed)return;
             EnsurePools(gm);Reconcile();
         }catch(Exception ex){Failed=true;Mod.Self.LoggerInstance.Error("Factory extension stopped: "+ex);}
     }
@@ -168,7 +177,7 @@ internal static class FactoryExtension
     {
         var def=FactoryPlan.Find((int)skill.skillId);if(def==null)return true;
         // ApplyInitialState runs before the finished tree and native unlock references are available.
-        if(Building||Tree==null)return false;
+        if(Building||Failed||Tree==null)return false;
         if(!PoolsReady)EnsurePools(GameManager.Instance);
         Reconcile();
         if(!Building&&Owned.Contains(def.Id))Mod.Self.LoggerInstance.Msg("Factory upgrade applied: "+def.Name);

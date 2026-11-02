@@ -5,7 +5,7 @@
 - Widened grinders, collision seams, conveyor junctions and large body piles need more manual gameplay validation. Physics changes can interact with other mods.
 - Night lighting is implemented but has not been validated across multiple displays, graphics settings or platforms.
 - Core timings do not account for all Unity physics or GPU work. Continuous collision, stronger solver settings and extra lights can still have a cost at high object counts.
-- UI strings are currently in French. English documentation does not imply English in-game localization.
+- The custom interface is in English as of 0.12.0. Screenshot/layout review is still needed, especially for long upgrade names at lower resolutions.
 - Several progression changes intentionally differ from vanilla: this is an overhaul, not a bug-fix-only package.
 - The mod uses a separate save. Removing it resumes vanilla progress rather than transferring mod progress back.
 - No end-user installer or public binary artifact is provided yet. Local builds embed a locally generated geometry snapshot.

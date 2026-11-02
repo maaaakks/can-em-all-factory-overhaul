@@ -5,7 +5,7 @@ using Newtonsoft.Json.Linq;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-[assembly: MelonInfo(typeof(PermanentUpgradesRevamped.Mod), "Permanent Upgrades Revamped", "0.11.0", "Max & Codex")]
+[assembly: MelonInfo(typeof(PermanentUpgradesRevamped.Mod), "Permanent Upgrades Revamped", "0.12.0", "Max & Codex")]
 [assembly: MelonGame("LuisDev", "Can 'Em All")]
 [assembly: HarmonyDontPatchAll]
 
@@ -17,8 +17,9 @@ public sealed class Mod : MelonMod
     internal static int[] Ranks = new int[Balance.Upgrades.Length];
     internal static bool Migrated, Loaded, Faulted;
     internal static string SaveFile = "";
-    static string Notice = "Les bonus achetés prennent effet immédiatement. Capital : prochaine reprise.";
+    static string Notice = "Purchased bonuses apply immediately. Starting cash: next factory reset.";
     static float NextScan;
+    static GameManager BonusOwner;
 
     static readonly Dictionary<IntPtr, float> GameBonuses = new(),AmmoBonuses=new();
     static readonly Dictionary<IntPtr, float> IncomeBonuses = new(), MoveBonuses = new();
@@ -97,7 +98,7 @@ public sealed class Mod : MelonMod
         Migrated = true;
         try { WriteSave(SaveManager.Instance); }
         catch { Migrated = false; save.upgradePoints = oldPoints; save.unlockedPermanentUpgrades = oldIds; throw; }
-        Notice = $"Anciens achats remboursés : {refund:N0} points. Progression d'origine conservée.";
+        Notice = $"Previous purchases refunded: {refund:N0} points. Original progress preserved.";
         Self.LoggerInstance.Msg($"Migration: refunded {refund}, balance {save.upgradePoints}; ranks zero.");
     }
 
@@ -106,6 +107,10 @@ public sealed class Mod : MelonMod
         if (!Migrated || Faulted) return;
         Specials.Apply();
         var gm = GameManager.Instance;
+        if(BonusOwner!=gm){
+            GameBonuses.Clear();AmmoBonuses.Clear();IncomeBonuses.Clear();MoveBonuses.Clear();StorageBonuses.Clear();BaseStorage.Clear();
+            BonusOwner=gm;
+        }
         if (gm != null) {
             GameBonuses.TryGetValue(gm.Pointer, out var old);
             var damage = (float)Balance.Value(1, Ranks[1]) - 1;
@@ -133,6 +138,16 @@ public sealed class Mod : MelonMod
             var bonus = (int)Math.Ceiling(capacity * (Balance.Value(4, Ranks[4]) - 1));
             vacuum.maxCapacity += bonus - old; StorageBonuses[vacuum.Pointer] = bonus;
         }
+    }
+
+    public override void OnSceneWasUnloaded(int buildIndex,string sceneName)
+    {
+        // Do not discard a new scene that Unity has already initialized during an additive transition.
+        if(GameManager.Instance!=null)return;
+        FactoryExtension.ResetScene();FactorySafety.ResetScene();IndustrialSuction.ResetScene();
+        ConveyorStability.ResetScene();IntakeGeometry.ResetScene();NativeUi.ResetScene();Specials.ResetScene();
+        GameBonuses.Clear();AmmoBonuses.Clear();IncomeBonuses.Clear();MoveBonuses.Clear();StorageBonuses.Clear();BaseStorage.Clear();BonusOwner=null;NextScan=0;
+        Self.LoggerInstance.Msg("Released factory scene caches: "+sceneName);
     }
 
     public override void OnFixedUpdate() {var start=PerformanceAudit.Begin();IndustrialSuction.FixedTick();PerformanceAudit.End(0,start);start=PerformanceAudit.Begin();ConveyorStability.FixedTick();PerformanceAudit.End(1,start);}

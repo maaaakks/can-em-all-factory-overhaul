@@ -35,9 +35,9 @@ internal static class BulkPurchase
                 if(!node.skill.isPurchased)break;
                 count++;spent+=price;
             }
-            LastResult=$"{count} achats · {spent:N0} $";
+            LastResult=$"{count} upgrades · {spent:N0} $";
             Mod.Self.LoggerInstance.Msg($"Bulk run purchases: {count}/{plan.Ids.Length}, total {spent} dollars, remaining {money.Money}.");
-        }catch(Exception ex){LastResult=$"{count} achats effectués ; consulter le journal";Mod.Self.LoggerInstance.Error("Bulk purchase stopped: "+ex);}
+        }catch(Exception ex){LastResult=$"{count} upgrades purchased; see the log";Mod.Self.LoggerInstance.Error("Bulk purchase stopped: "+ex);}
         finally{Running=false;SaveManager.Instance.Save();if(SkillPopUp.Instance!=null)SkillPopUp.Instance.Hide();}
         if(count>0&&UISound.Instance!=null)UISound.Instance.PlayPurchaseClip();
     }

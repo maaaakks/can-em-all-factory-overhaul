@@ -1,4 +1,4 @@
-# Features and balance — 0.11.0
+# Features and balance — 0.12.0
 
 ## Permanent upgrade table
 
@@ -74,3 +74,9 @@ The five processing machines remain normal run unlocks. Permanent grinder width 
 ## Diagnostics
 
 Every 30 seconds of active gameplay, loader logs report average/P95 frame times, long frames, mod section timings, managed allocations, actual sales, guided/floor cans and production queues. These measurements help distinguish payout balance from transport/production bottlenecks. They do not establish a controlled vanilla/mod FPS comparison.
+
+## Scene lifecycle and language
+
+All custom upgrade names, descriptions, statuses, tooltips and shop buttons are in English. Permanent numerical labels use invariant English formatting even on French Windows. Prices, progression tables, saved identifiers and schema 6 are unchanged.
+
+The factory extension clears its injected-node and turret registries for each new skill tree. Blue lighting follows the current lighting controller and ignores destroyed lights. Grinder, suction, conveyor and UI caches are rebuilt for the new scene rather than retaining destroyed Unity objects. These fixes target the duplicate-skill and destroyed-light errors seen after restarting a game. Compilation and core checks do not replace manual new-game/end-of-run testing.

@@ -13,12 +13,12 @@ public static class FactoryPlan
 {
     // IDs are stable saved identifiers; never reuse an ID for a different effect.
     public static readonly FactoryUpgrade[] All={
-        new(10001,265,35000000,"turrets",3,"Tourelle III","Ajoute une troisième tourelle dans l'usine.",0,0),
-        new(10002,10001,100000000,"turrets",4,"Tourelle IV","Ajoute une quatrième tourelle dans l'usine.",0,1),
-        new(10011,273,20000000,"ammo",2,"Réserve V","Réserve globale : ×5 → ×7 par rapport à la capacité de base.",1,0),
-        new(10012,10011,40000000,"ammo",5,"Réserve VI","Réserve globale : ×7 → ×10.",1,1),
-        new(10013,10012,80000000,"ammo",10,"Réserve VII","Réserve globale : ×10 → ×15.",1,2),
-        new(10014,10013,160000000,"ammo",20,"Réserve VIII","Réserve globale : ×15 → ×25. Les réserves supplémentaires sont remplies au prochain réarmement.",1,3),
+        new(10001,265,35000000,"turrets",3,"Turret III","Adds a third turret to the factory.",0,0),
+        new(10002,10001,100000000,"turrets",4,"Turret IV","Adds a fourth turret to the factory.",0,1),
+        new(10011,273,20000000,"ammo",2,"Reserve V","Reserve capacity: ×5 → ×7 compared with base capacity.",1,0),
+        new(10012,10011,40000000,"ammo",5,"Reserve VI","Reserve capacity: ×7 → ×10.",1,1),
+        new(10013,10012,80000000,"ammo",10,"Reserve VII","Reserve capacity: ×10 → ×15.",1,2),
+        new(10014,10013,160000000,"ammo",20,"Reserve VIII","Reserve capacity: ×15 → ×25. Additional reserves are filled at the next normal rearm.",1,3),
 
     };
     public static FactoryUpgrade Find(int id)=>All.FirstOrDefault(u=>u.Id==id);

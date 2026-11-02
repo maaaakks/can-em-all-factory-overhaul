@@ -11,6 +11,13 @@ internal static class ConveyorStability
     static readonly List<Belt> ActiveBelts=new();static readonly List<IntPtr> ReleaseIds=new();
     internal static int GuidedCount=>Guided.Count;
     static readonly HashSet<IntPtr> Seen=new();static bool Failed,Logged,Prepared;static PhysicsMaterial Material;
+    static GameManager Owner;
+    internal static void ResetScene()
+    {
+        Belts.Clear();Guided.Clear();ActiveBelts.Clear();ReleaseIds.Clear();Seen.Clear();
+        Owner=null;Failed=Logged=Prepared=false;
+        if(Material!=null)Object.Destroy(Material);Material=null;
+    }
     static bool Register(ConveyorSimple conveyor)
     {
         if(conveyor==null||conveyor.rBody==null)return false;
@@ -26,14 +33,16 @@ internal static class ConveyorStability
     }
     internal static void FixedTick()
     {
+        var gm=GameManager.Instance;
+        if(Owner!=gm){ResetScene();Owner=gm;}
         if(Failed)return;
         try{
-            var gm=GameManager.Instance;if(gm==null||gm.IsPaused||Time.timeScale==0)return;
+            if(gm==null||gm.IsPaused||Time.timeScale==0)return;
             if(Belts.Count==0)foreach(var conveyor in Object.FindObjectsOfType<ConveyorSimple>(true))Register(conveyor);
             if(!Prepared&&Belts.Count>0){Prepared=true;Mod.Self.LoggerInstance.Msg($"Conveyor stabilization prepared: {Belts.Count} belt colliders registered; native teleporting motor replaced by can guidance.");}
             if(Material==null){Material=new PhysicsMaterial();Material.name="PUR_ConveyorNoBounce";Material.bounciness=0;Material.bounceCombine=PhysicsMaterialCombine.Minimum;Material.staticFriction=.15f;Material.dynamicFriction=.15f;Material.frictionCombine=PhysicsMaterialCombine.Minimum;}
             ActiveBelts.Clear();
-            foreach(var belt in Belts){if(belt.Collider==null||!belt.Collider.enabled||!belt.Conveyor.gameObject.activeInHierarchy)continue;belt.Speed=belt.Conveyor.speed;if(belt.Speed<=0)continue;belt.Bounds=belt.Collider.bounds;belt.Min=belt.Bounds.min;belt.Max=belt.Bounds.max;belt.Center=belt.Bounds.center;belt.Side=Vector3.Cross(Vector3.up,belt.Forward);ActiveBelts.Add(belt);}
+            foreach(var belt in Belts){if(belt.Conveyor==null||belt.Collider==null||!belt.Collider.enabled||!belt.Conveyor.gameObject.activeInHierarchy)continue;belt.Speed=belt.Conveyor.speed;if(belt.Speed<=0)continue;belt.Bounds=belt.Collider.bounds;belt.Min=belt.Bounds.min;belt.Max=belt.Bounds.max;belt.Center=belt.Bounds.center;belt.Side=Vector3.Cross(Vector3.up,belt.Forward);ActiveBelts.Add(belt);}
             Seen.Clear();
             foreach(var can in gm.cans){
                 if(can==null||can.rb==null||can.mainCollider==null||!can.gameObject.activeInHierarchy||can.IsInPool||can.IsProcessed||can.IsFreeFall||can.isHeld||can.rb.isKinematic)continue;

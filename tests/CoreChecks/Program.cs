@@ -79,3 +79,12 @@ Check((int)schema5["pur"]["schema"]==5&&(int)schema6["pur"]["schema"]==6,"Migrat
 var repeated=SaveMigration.Upgrade(schema6,out var repeatedRefund);Check(repeatedRefund==0&&JToken.DeepEquals(schema6,repeated),"New bonus migration is idempotent");
 try{FirstDeliveryRules.ExtraMonsters(11);throw new Exception("Over-cap first-delivery rank accepted");}catch(ArgumentOutOfRangeException){}
 Console.WriteLine("ALL FIRST-DELIVERY CHECKS PASSED");
+
+var previousCulture=System.Globalization.CultureInfo.CurrentCulture;
+try{
+ System.Globalization.CultureInfo.CurrentCulture=System.Globalization.CultureInfo.GetCultureInfo("fr-FR");
+ Check(Balance.Display(0,20)=="$1,000,000"&&Balance.Display(8,1)=="×1.15"&&Balance.Display(6,1)=="+0.5 pp","English permanent numbers do not inherit French Windows formatting");
+ Check(Balance.Display(9,0)=="INACTIVE"&&Balance.Display(13,0)=="LOCKED"&&Balance.Display(13,1)=="OWNED"&&Balance.Display(19,10)=="+50 monsters","English permanent status and delivery labels");
+ Check(Balance.Upgrades.All(u=>u.Name.All(c=>c<128)&&u.Description.All(c=>c<128))&&FactoryPlan.All.All(u=>u.Name.All(c=>c<128)&&u.Description.All(c=>c<128||c=='×'||c=='→')),"All custom permanent/run upgrade names and descriptions use English text and math symbols");
+}finally{System.Globalization.CultureInfo.CurrentCulture=previousCulture;}
+Console.WriteLine("ALL ENGLISH UI CHECKS PASSED");

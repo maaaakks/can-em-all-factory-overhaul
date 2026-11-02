@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.12.0 - Scene reload fixes and English interface
+
+- Reset injected skill/turret registries per tree, fixing duplicate identity checks after a scene reload.
+- Recreate blue lighting for each lighting controller and guard destroyed lights.
+- Release grinder geometry, suction, conveyor, UI and applied-bonus caches when their factory scene changes.
+- Translate all custom permanent/run names, descriptions, tooltips, status labels and shop buttons into English.
+- Preserve balance, prices, saved IDs and schema 6. Add English number/status regression checks.
+
 ## 0.11.0 - First delivery reinforcements
 
 - Add a Special Bonuses permanent: +5 monsters per rank on the first delivery of each day, up to +50.

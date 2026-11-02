@@ -37,11 +37,20 @@ internal static class IntakeGeometry
     static readonly List<FloorPart> Parts=new();
     static readonly HashSet<IntPtr> PlayerColliders=new();
     static IntPtr PlayerPointer;
-    static bool Ready;
+    static bool Ready;static GameManager Owner;
     internal static float Width=1;
 
+    internal static void ResetScene()
+    {
+        // Scene-owned renderers/colliders are already destroyed; release only their managed caches.
+        foreach(var part in Parts)if(part.Mesh!=null)Object.Destroy(part.Mesh);
+        Intakes.Clear();Parts.Clear();PlayerColliders.Clear();PlayerPointer=IntPtr.Zero;
+        Owner=null;Ready=false;Width=1;
+    }
     internal static void Ensure(GameManager gm)
     {
+        if(gm==null)return;
+        if(Owner!=gm){ResetScene();Owner=gm;}
         if(Ready)return;
         using var stream=Assembly.GetExecutingAssembly().GetManifestResourceStream("PermanentUpgradesRevamped.FloorGeometry.json") ?? throw new InvalidOperationException("Floor geometry resource missing");
         var data=JsonConvert.DeserializeObject<FloorMeshData[]>(new StreamReader(stream).ReadToEnd());
@@ -161,5 +170,5 @@ internal static class IntakeGeometry
         }
     }
     [HarmonyPatch(typeof(RobotCleaner),"IsInsideProcessor")]
-    static class InsidePatch{static void Postfix(Vector3 position,ref bool __result){if(Ready&&Width>1.01f)__result=Intakes.Any(i=>i.Processor.IsOn&&i.Contains(position));}}
+    static class InsidePatch{static void Postfix(Vector3 position,ref bool __result){if(Ready&&Width>1.01f)__result=Intakes.Any(i=>i.Processor!=null&&i.Processor.IsOn&&i.Contains(position));}}
 }
