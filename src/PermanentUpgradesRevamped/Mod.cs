@@ -5,7 +5,7 @@ using Newtonsoft.Json.Linq;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-[assembly: MelonInfo(typeof(PermanentUpgradesRevamped.Mod), "Permanent Upgrades Revamped", "0.14.0", "Max & Codex")]
+[assembly: MelonInfo(typeof(PermanentUpgradesRevamped.Mod), "Permanent Upgrades Revamped", "0.14.2", "Max & Codex")]
 [assembly: MelonGame("LuisDev", "Can 'Em All")]
 [assembly: HarmonyDontPatchAll]
 
@@ -150,7 +150,7 @@ public sealed class Mod : MelonMod
         if(GameManager.Instance!=null)return;
         FactoryExtension.ResetScene();FactorySafety.ResetScene();IndustrialSuction.ResetScene();
         ConveyorStability.ResetScene();IntakeGeometry.ResetScene();NativeUi.ResetScene();Specials.ResetScene();
-        ShopFirst.ResetScene();
+        ShopFirst.ResetScene();DeliveryControl.ResetScene();
         GameBonuses.Clear();AmmoBonuses.Clear();IncomeBonuses.Clear();MoveBonuses.Clear();StorageBonuses.Clear();BaseStorage.Clear();BonusOwner=null;NextScan=0;
         Self.LoggerInstance.Msg("Released factory scene caches: "+sceneName);
     }
@@ -162,7 +162,7 @@ public sealed class Mod : MelonMod
         PerformanceAudit.Tick();var auditStart=PerformanceAudit.Begin();try{
         FactoryExtension.Tick();
         NativeUi.ReadInput();
-        Specials.Tick();
+        Specials.Tick();DeliveryControl.Tick();
         FactorySafety.Tick();
         if (Time.unscaledTime < NextScan || Faulted) return;
         NextScan = Time.unscaledTime + .5f;
@@ -205,7 +205,7 @@ public sealed class Mod : MelonMod
     {
         if(!Progress.BindCurrent(save.Pointer.ToInt64()))return;
         NextScan=0;
-        Self.LoggerInstance.Msg("Native save object changed without Load: permanent ranks reset for the new save.");
+        Self.LoggerInstance.Msg("Native save object replaced without Load: permanent ranks retained. Only explicit New Game clears them.");
     }
 
     [HarmonyPatch(typeof(Menu),"NewGame")]
@@ -215,7 +215,7 @@ public sealed class Mod : MelonMod
         {
             // Back up the old slot before the native method replaces CurrentSaveData.
             if(File.Exists(SaveFile))File.Copy(SaveFile,SaveFile+".before-new-game-"+DateTime.UtcNow.ToString("yyyyMMdd-HHmmss-fffffff"));
-            Progress.StartNew();Loaded=true;Faulted=false;NextScan=0;ShopFirst.ResetScene();Specials.ResetScene();
+            Progress.StartNew();Loaded=true;Faulted=false;NextScan=0;ShopFirst.ResetScene();Specials.ResetScene();DeliveryControl.ResetScene();
             // Remove the previous save's applied deltas before native initialization starts.
             ApplyBonuses();
             IntakeGeometry.Apply(1);IndustrialSuction.Configure();

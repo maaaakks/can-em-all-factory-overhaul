@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.14.2 - Delivery pause control
+
+- Add a physical pause/resume button inside the native truck entrance, operated by aiming and pressing E. Green permits deliveries; red suspends future visits.
+- Let an active delivery finish unloading and returning, then hold its existing coroutine at the visit boundary. Resume without restarting the coroutine or changing first-delivery bookkeeping.
+- Keep the toggle for the current session, across days; reset it on scene reload or explicit New Game. No save schema or balance changes.
+- Add dispatch-boundary checks and retain the ending-prestige regression coverage. Compilation and pure checks pass; button input/rendering and native coroutine behavior require manual gameplay validation.
+- Delivery-button labels are currently French; the existing upgrade interface remains English.
+
+## 0.14.1 - Preserve prestige after the ending
+
+- Fix allocated permanent ranks being erased when the native game replaces SaveData after the ending scene.
+- Rebind the new native identity without clearing ranks. Explicit New Game still clears them; Continue restores the loaded save's own ranks.
+- Add repeated native-identity replacement checks. Save schema 6 and prices remain unchanged.
+
 ## 0.14.0 - Save-scoped permanent progress
 
 - Fix New Game retaining the previous save's permanent ranks in memory.

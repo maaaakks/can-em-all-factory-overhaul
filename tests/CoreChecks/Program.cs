@@ -108,7 +108,26 @@ scoped.BindCurrent(101);scoped.BindCurrent(202);
 Check(scoped.Ranks.All(rank=>rank==0)&&completed.SequenceEqual(Balance.Upgrades.Select(u=>u.Cap)),"Native replacement cannot inherit ranks or mutate the previous save snapshot");
 scoped.Restore(completed,true);scoped.BindLoaded(303);
 Check(!scoped.BindCurrent(303)&&scoped.Ranks.SequenceEqual(completed),"Continue after New Game can still restore the ranks stored in that save");
-Check(scoped.BindCurrent(404)&&scoped.Migrated&&scoped.Ranks.All(rank=>rank==0),"An unannounced native save replacement also resets prestige instead of leaking it");
+Check(scoped.BindCurrent(404)&&scoped.Migrated&&scoped.Ranks.SequenceEqual(completed),"Ending continuation replaces native SaveData without erasing allocated prestige");
+for(var identity=405;identity<1405;identity++){
+ scoped.BindCurrent(identity);
+ Check(scoped.Ranks.SequenceEqual(completed),"Repeated native save replacements preserve the active save's ranks");
+}
 scoped.Restore(completed,true);scoped.BindLoaded(505);scoped.Ranks[0]=0;
 Check(completed[0]==20,"Runtime purchases/respec cannot mutate the loaded input snapshot");
 Console.WriteLine("ALL SAVE OWNERSHIP CHECKS PASSED");
+
+for(var state=0;state<=13;state++){
+ Check(!DeliveryPauseRules.ShouldWait(false,state,2),"Enabled deliveries never block the native iterator");
+ if(state is >0 and <13)Check(!DeliveryPauseRules.ShouldWait(true,state,2),"Pausing cannot interrupt travel or unloading");
+}
+Check(DeliveryPauseRules.ShouldWait(true,0,0),"Paused dispatch waits before starting a new visit");
+Check(!DeliveryPauseRules.ShouldWait(true,13,.99f),"The returning truck can finish its movement");
+Check(DeliveryPauseRules.ShouldWait(true,13,1)&&DeliveryPauseRules.ShouldWait(true,13,1.1f),"Completed return holds the next visit despite frame timing overshoot");
+var deliveryCount=1;var deliveryState=13;
+for(var frame=0;frame<1000;frame++){
+ if(!DeliveryPauseRules.ShouldWait(true,deliveryState,1)){deliveryCount++;deliveryState=0;}
+ Check(deliveryCount==1&&deliveryState==13,"Paused frames cannot start or reset another truck visit");
+}
+Check(!DeliveryPauseRules.ShouldWait(false,deliveryState,1),"Resume releases the same native iterator");
+Console.WriteLine("ALL DELIVERY PAUSE CHECKS PASSED; button rendering, input and native truck transitions require manual gameplay validation.");

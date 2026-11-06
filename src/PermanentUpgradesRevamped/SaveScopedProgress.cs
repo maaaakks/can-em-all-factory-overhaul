@@ -1,6 +1,7 @@
 namespace PermanentUpgradesRevamped;
 
-// The native save object is replaced by New Game without calling SaveManager.Load.
+// Native SaveData identity can also change after Ending. Only explicit New Game
+// clears permanent ranks; a different native wrapper is not evidence of a new slot.
 public sealed class SaveScopedProgress
 {
     public int[] Ranks=new int[Balance.Upgrades.Length];
@@ -14,7 +15,7 @@ public sealed class SaveScopedProgress
     public void BindLoaded(long identity){boundSave=identity;}
     public bool BindCurrent(long identity)
     {
-        if(boundSave.HasValue&&boundSave.Value!=identity){StartNew();boundSave=identity;return true;}
+        if(boundSave.HasValue&&boundSave.Value!=identity){boundSave=identity;return true;}
         boundSave=identity;return false;
     }
 }

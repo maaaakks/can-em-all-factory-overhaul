@@ -1,4 +1,4 @@
-# Features and balance - 0.14.0
+# Features and balance - 0.14.2
 
 ## Permanent upgrade table
 
@@ -77,7 +77,7 @@ Every 30 seconds of active gameplay, loader logs report average/P95 frame times,
 
 ## Scene lifecycle and language
 
-All custom upgrade names, descriptions, statuses, tooltips and shop buttons are in English. Permanent numerical labels use invariant English formatting even on French Windows. Prices, progression tables, saved identifiers and schema 6 are unchanged.
+All custom upgrade names, descriptions, tooltips and shop buttons are in English. The new physical delivery control currently uses French status labels and prompts. Permanent numerical labels use invariant English formatting even on French Windows. Prices, progression tables, saved identifiers and schema 6 are unchanged.
 
 The factory extension clears its injected-node and turret registries for each new skill tree. Blue lighting follows the current lighting controller and ignores destroyed lights. Grinder, suction, conveyor and UI caches are rebuilt for the new scene rather than retaining destroyed Unity objects. These fixes target the duplicate-skill and destroyed-light errors seen after restarting a game. Compilation and core checks do not replace manual new-game/end-of-run testing.
 
@@ -94,3 +94,11 @@ Original-resolution screenshots are available in the [README](../README.md): the
 ## Save-scoped prestige
 
 Permanent ranks are stored in the active mod save. Continue restores that save's ranks. New Game creates a fresh save with zero permanent ranks and native starting points; it first creates a timestamped `.before-new-game-*` backup of the previous mod save. Grinder width returns to its baseline and suction remains inactive until purchased in the new save. Selling the factory is prestige within the same save and preserves permanent purchases. Schema 6 and all balance tables remain unchanged.
+
+Returning from the ending can replace the native SaveData object without loading another save. This replacement now preserves allocated ranks instead of treating it as an implicit New Game.
+
+## Delivery pause button
+
+A button inside the native truck entrance toggles upcoming deliveries. Aim directly at it within 2.7 m and press E. Green means deliveries are enabled; red means they are paused. A loaded or returning truck finishes its current visit. The native iterator then waits between visits, preserving first-delivery bonuses and local state. Press E again to resume the same iterator.
+
+The toggle is session-only and remains paused across days. Reloading the scene or explicitly starting a New Game enables deliveries again. It does not alter saved progress, prices, day timers or prestige.
