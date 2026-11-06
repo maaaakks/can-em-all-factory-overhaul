@@ -2,7 +2,7 @@
 
 An experimental progression and factory automation overhaul for **Can ’Em All**.
 
-**Current code version: 0.14.2 alpha.** Built with MelonLoader for the Windows Steam IL2CPP version of the game. The in-game assembly still uses the name **Permanent Upgrades Revamped**.
+**Current code version: 0.14.3 alpha.** Built with MelonLoader for the Windows Steam IL2CPP version of the game. The in-game assembly still uses the name **Permanent Upgrades Revamped**.
 
 > **Source preview:** this repository contains the mod source, English documentation and core checks. A player-ready installer and downloadable binary release have not been published. The custom upgrade interface is in English; the new delivery control currently has French labels.
 
@@ -58,7 +58,7 @@ Both screenshots show the final **Grinder Width** rank (**x2.25**), purchased in
 - Restrict widened grinder damage detection to the pit rather than the nearby walking surface.
 - Keep the buggy **Cold Storage** carry-over upgrade disabled.
 - Open the run shop before the first day when starting or continuing a game, and return to it after selling the factory. Spend starting cash and use **Buy Maximum** before pressing **NEXT DAY** or **Space** to begin.
-- Pause or resume future deliveries with a physical button inside the truck entrance. Aim at it and press **E**: green permits deliveries, red suspends them. A truck already in transit finishes its visit. The session toggle stays paused across days until resumed; reloading or starting a new game restores normal dispatch.
+- Toggle additional deliveries with a physical button inside the truck entrance. Aim at it and press **E**: green permits all deliveries, red limits each day to its first delivery. That first daily truck always runs, even if the toggle was left red the day before. A truck already in transit finishes its visit. The session toggle stays set across days; reloading or starting a new game restores normal dispatch.
 
 **Blue night lighting**
 
@@ -120,7 +120,7 @@ See [BUILDING.md](docs/BUILDING.md) for manual commands and dependencies.
 
 ## Installation of a locally built copy
 
-Close the game and copy `PermanentUpgradesRevamped.dll` from the build output into the game's `Mods` directory. Launch normally. The loader log should list **Permanent Upgrades Revamped v0.14.2**.
+Close the game and copy `PermanentUpgradesRevamped.dll` from the build output into the game's `Mods` directory. Launch normally. The loader log should list **Permanent Upgrades Revamped v0.14.3**.
 
 In the shop, open **PRESTIGE** or press **P**. Press **P** or **Escape** to close the panel. **Buy Maximum** belongs to the run skill-tree tab and spends run money, not prestige points. Ammunition capacity becomes available at the next normal rearm; it does not grant free ammunition when purchased.
 

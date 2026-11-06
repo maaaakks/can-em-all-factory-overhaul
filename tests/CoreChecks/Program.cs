@@ -121,7 +121,7 @@ for(var state=0;state<=13;state++){
  Check(!DeliveryPauseRules.ShouldWait(false,state,2),"Enabled deliveries never block the native iterator");
  if(state is >0 and <13)Check(!DeliveryPauseRules.ShouldWait(true,state,2),"Pausing cannot interrupt travel or unloading");
 }
-Check(DeliveryPauseRules.ShouldWait(true,0,0),"Paused dispatch waits before starting a new visit");
+Check(!DeliveryPauseRules.ShouldWait(true,0,0),"A paused new day still starts its first native delivery");
 Check(!DeliveryPauseRules.ShouldWait(true,13,.99f),"The returning truck can finish its movement");
 Check(DeliveryPauseRules.ShouldWait(true,13,1)&&DeliveryPauseRules.ShouldWait(true,13,1.1f),"Completed return holds the next visit despite frame timing overshoot");
 var deliveryCount=1;var deliveryState=13;
@@ -130,4 +130,10 @@ for(var frame=0;frame<1000;frame++){
  Check(deliveryCount==1&&deliveryState==13,"Paused frames cannot start or reset another truck visit");
 }
 Check(!DeliveryPauseRules.ShouldWait(false,deliveryState,1),"Resume releases the same native iterator");
+for(var day=1;day<=100;day++){
+ Check(!DeliveryPauseRules.ShouldWait(true,0,0),"Each day guarantees its first truck while keeping the pause setting");
+ for(var state=1;state<=12;state++)Check(!DeliveryPauseRules.ShouldWait(true,state,.5f),"The first daily truck can travel, unload and return");
+ Check(DeliveryPauseRules.ShouldWait(true,13,1),"After the first completed visit all additional deliveries remain paused");
+ Check(!DeliveryPauseRules.ShouldWait(false,13,1),"The operator can allow extra deliveries on any day");
+}
 Console.WriteLine("ALL DELIVERY PAUSE CHECKS PASSED; button rendering, input and native truck transitions require manual gameplay validation.");

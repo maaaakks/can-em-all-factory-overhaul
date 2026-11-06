@@ -2,8 +2,9 @@ namespace PermanentUpgradesRevamped;
 
 public static class DeliveryPauseRules
 {
-    // Native TruckUpdate starts at 0 and finishes its return at state 13.
-    // Keep the iterator alive at a visit boundary; never cancel a loaded truck.
+    // Each native day starts a fresh TruckUpdate at state 0: its first visit
+    // must always run. Only hold after that visit returns at state 13.
+    // Keep the iterator alive without clearing the operator's pause setting.
     public static bool ShouldWait(bool paused,int state,float returnProgress)
-        =>paused&&(state==0||state==13&&returnProgress>=1);
+        =>paused&&state==13&&returnProgress>=1;
 }

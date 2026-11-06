@@ -64,7 +64,7 @@ internal static class DeliveryControl
     }
     static void UpdateStatus()
     {
-        if(Sign!=null)Sign.text=Paused?"LIVRAISONS\nEN PAUSE":"LIVRAISONS\nAUTORISÉES";
+        if(Sign!=null)Sign.text=Paused?"LIVRAISONS\n1 PAR JOUR":"LIVRAISONS\nAUTORISÉES";
         var color=Paused?new Color(.9f,.15f,.08f):new Color(.12f,.78f,.24f);
         if(ButtonMaterial!=null){ButtonMaterial.color=color;ButtonMaterial.SetColor("_EmissionColor",color*.35f);}
     }
@@ -88,11 +88,11 @@ internal static class DeliveryControl
             }
             var aiming=Aiming(gm);Prompt.SetActive(aiming);
             if(!aiming)return;
-            PromptText.text=Paused?"E · Reprendre les livraisons": "E · Suspendre les prochaines livraisons";
+            PromptText.text=Paused?"E · Autoriser toutes les livraisons": "E · Limiter à une livraison par jour";
             if(Paused&&!Waiting)PromptText.text+="\nLa livraison en cours se termine.";
             if(Input.GetKeyDown(KeyCode.E)&&Time.unscaledTime>=NextPress){
                 Paused=!Paused;NextPress=Time.unscaledTime+.3f;UpdateStatus();
-                Mod.Self.LoggerInstance.Msg(Paused?"Next deliveries paused by operator; active visit retained.":"Deliveries resumed by operator.");
+                Mod.Self.LoggerInstance.Msg(Paused?"Extra deliveries paused; first native delivery of every day remains enabled.":"All deliveries resumed by operator.");
             }
         }catch(Exception ex){Paused=false;Failed=true;if(Prompt!=null)Prompt.SetActive(false);Mod.Self.LoggerInstance.Error("Delivery button unavailable; native deliveries left enabled: "+ex);}
     }

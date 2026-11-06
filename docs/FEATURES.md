@@ -1,4 +1,4 @@
-# Features and balance - 0.14.2
+# Features and balance - 0.14.3
 
 ## Permanent upgrade table
 
@@ -99,6 +99,6 @@ Returning from the ending can replace the native SaveData object without loading
 
 ## Delivery pause button
 
-A button inside the native truck entrance toggles upcoming deliveries. Aim directly at it within 2.7 m and press E. Green means deliveries are enabled; red means they are paused. A loaded or returning truck finishes its current visit. The native iterator then waits between visits, preserving first-delivery bonuses and local state. Press E again to resume the same iterator.
+A button inside the native truck entrance toggles additional deliveries. Aim directly at it within 2.7 m and press E. Green permits all deliveries; red allows the first delivery of each day and pauses subsequent visits. A loaded or returning truck finishes its current visit. The native iterator then waits at the completed-return boundary, preserving first-delivery bonuses and local state. Press E again to resume the same iterator. A fresh daily iterator always starts its first delivery, without resetting the red toggle.
 
 The toggle is session-only and remains paused across days. Reloading the scene or explicitly starting a New Game enables deliveries again. It does not alter saved progress, prices, day timers or prestige.

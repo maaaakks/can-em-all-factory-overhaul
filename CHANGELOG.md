@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.14.3 - Guarantee the first daily delivery
+
+- Always allow a fresh daily TruckUpdate to start, even when the delivery toggle remains paused from the previous day.
+- Pause only at the completed return boundary, so the first daily delivery and its permanent bonuses remain available while subsequent visits stay blocked.
+- Label the red state as one delivery per day and clarify the resume prompt.
+- Add a hundred-day regression sequence without clearing the pause setting. No save or balance changes.
+
 ## 0.14.2 - Delivery pause control
 
 - Add a physical pause/resume button inside the native truck entrance, operated by aiming and pressing E. Green permits deliveries; red suspends future visits.
