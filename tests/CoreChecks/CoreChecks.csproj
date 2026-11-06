@@ -15,6 +15,7 @@
     <Compile Include="../../src/PermanentUpgradesRevamped/EffectsRules.cs" Link="EffectsRules.cs" />
     <Compile Include="../../src/PermanentUpgradesRevamped/PhysicsRules.cs" Link="PhysicsRules.cs" />
     <Compile Include="../../src/PermanentUpgradesRevamped/SuctionRules.cs" Link="SuctionRules.cs" />
+    <Compile Include="../../src/PermanentUpgradesRevamped/IntakeRimRules.cs" Link="IntakeRimRules.cs" />
   </ItemGroup>
   <ItemGroup Condition="'$(NewtonsoftJsonPath)' == ''">
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />

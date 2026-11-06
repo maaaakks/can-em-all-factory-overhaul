@@ -1,4 +1,4 @@
-# Features and balance - 0.14.3
+# Features and balance - 0.14.4
 
 ## Permanent upgrade table
 
@@ -96,6 +96,10 @@ Original-resolution screenshots are available in the [README](../README.md): the
 Permanent ranks are stored in the active mod save. Continue restores that save's ranks. New Game creates a fresh save with zero permanent ranks and native starting points; it first creates a timestamped `.before-new-game-*` backup of the previous mod save. Grinder width returns to its baseline and suction remains inactive until purchased in the new save. Selling the factory is prestige within the same save and preserves permanent purchases. Schema 6 and all balance tables remain unchanged.
 
 Returning from the ending can replace the native SaveData object without loading another save. This replacement now preserves allocated ranks instead of treating it as an implicit New Game.
+
+## Flush grinder rim collisions
+
+The native grinder collision rim rises approximately 5.6 cm above the walking floor. Version 0.14.4 lowers only the above-floor collision vertices to floor level on all five grinders, allowing horizontal suction to cross the lip. The original lower walls, triangle indices, horizontal opening shape and width-upgrade transforms remain intact. This changes collision geometry, not the existing rim artwork. No extra ramps, floors over pits, teleportation or upward body impulses are added. Geometry is read from the locally generated snapshot because the native mesh is not CPU-readable; regenerate old snapshots with the current exporter.
 
 ## Delivery pause button
 

@@ -35,6 +35,7 @@ internal static class IntakeGeometry
     internal static readonly List<Intake> Intakes=new();
     sealed class FloorPart {public FloorMeshData Data;public Mesh Mesh;public MeshCollider Collider;}
     static readonly List<FloorPart> Parts=new();
+    static readonly List<Mesh> RimMeshes=new();
     static readonly HashSet<IntPtr> PlayerColliders=new();
     static IntPtr PlayerPointer;
     static bool Ready;static GameManager Owner;
@@ -44,6 +45,7 @@ internal static class IntakeGeometry
     {
         // Scene-owned renderers/colliders are already destroyed; release only their managed caches.
         foreach(var part in Parts)if(part.Mesh!=null)Object.Destroy(part.Mesh);
+        foreach(var mesh in RimMeshes)if(mesh!=null)Object.Destroy(mesh);RimMeshes.Clear();
         Intakes.Clear();Parts.Clear();PlayerColliders.Clear();PlayerPointer=IntPtr.Zero;
         Owner=null;Ready=false;Width=1;
     }
@@ -55,6 +57,9 @@ internal static class IntakeGeometry
         using var stream=Assembly.GetExecutingAssembly().GetManifestResourceStream("PermanentUpgradesRevamped.FloorGeometry.json") ?? throw new InvalidOperationException("Floor geometry resource missing");
         var data=JsonConvert.DeserializeObject<FloorMeshData[]>(new StreamReader(stream).ReadToEnd());
         var floor=data.Single(d=>d.Name=="ConcreteFloorCol");
+        var rim=data.SingleOrDefault(d=>d.Kind=="intake-rim");
+        if(rim?.Name!="Machine_Crusher.Col"||rim.Vertices?.Length!=149||rim.Submeshes?.Length!=1||rim.Submeshes[0].Length!=288)
+            throw new InvalidOperationException("Missing tested intake rim geometry. Regenerate FloorGeometry.json with the current exporter.");
         foreach(var processor in gm.canProcessors) {
             var point=processor.point.position;
             var near=floor.Vertices.Where(v=>Math.Abs(v[2]-point.z)>.8f&&Math.Abs(v[2]-point.z)<2.3f&&v[0]>-4.5f&&v[0]<-.3f).ToArray();
@@ -87,8 +92,9 @@ internal static class IntakeGeometry
                 Mod.Self.LoggerInstance.Msg("Closed intake synchronized: "+cover.name+"; cover and solid support follow native unlock visibility.");break;
             }
             Intakes.Add(intake);
+            FlushRim(intake,rim);
         }
-        foreach(var source in data) {
+        foreach(var source in data.Where(d=>d.Kind!="intake-rim")) {
             var mesh=new Mesh();mesh.name="PUR_"+source.Name;mesh.subMeshCount=source.Submeshes.Length;
             mesh.vertices=source.Vertices.Select(v=>new Vector3(v[0],v[1],v[2])).ToArray();
             for(var i=0;i<source.Submeshes.Length;i++)mesh.SetTriangles(source.Submeshes[i],i);
@@ -112,6 +118,26 @@ internal static class IntakeGeometry
         }
         Ready=true;Apply(1,true);
         Mod.Self.LoggerInstance.Msg("Intake geometry: original visual floor and two collision floors reconstructed; five exact opening bounds identified.");
+    }
+
+    static void FlushRim(Intake intake,FloorMeshData source)
+    {
+        var colliders=intake.Processor.GetComponentsInChildren<MeshCollider>(true)
+            .Where(c=>c!=null&&!c.isTrigger&&c.name.StartsWith("Machine_Crusher_Col",StringComparison.Ordinal)).ToArray();
+        if(colliders.Length!=1)throw new InvalidOperationException("Unexpected native intake rim count for "+intake.Processor.name);
+        var collider=colliders[0];
+        // The native GPU mesh is not CPU-readable. Use the locally generated collision
+        // snapshot, without changing its topology, transform, material or enabled state.
+        var world=source.Vertices.Select(v=>collider.transform.TransformPoint(new Vector3(v[0],v[1],v[2]))).ToArray();
+        var min=world.Min(v=>v.y);var max=world.Max(v=>v.y);
+        if(!IntakeRimRules.Supported(intake.FloorY,min,max))throw new InvalidOperationException("Intake rim height differs from the tested small raised lip.");
+        var changed=0;
+        for(var i=0;i<world.Length;i++)if(world[i].y>intake.FloorY){world[i].y=IntakeRimRules.FlushHeight(world[i].y,intake.FloorY);changed++;}
+        var mesh=new Mesh();mesh.name="PUR_FlushRim_"+intake.Processor.name;mesh.subMeshCount=source.Submeshes.Length;
+        mesh.vertices=world.Select(v=>collider.transform.InverseTransformPoint(v)).ToArray();
+        for(var i=0;i<source.Submeshes.Length;i++)mesh.SetTriangles(source.Submeshes[i],i);
+        mesh.RecalculateBounds();RimMeshes.Add(mesh);collider.sharedMesh=mesh;
+        Mod.Self.LoggerInstance.Msg($"Flush intake collision: {intake.Processor.name}, raised lip {(max-intake.FloorY)*100:0.0}cm removed, {changed} vertices adjusted; pit walls and width scaling retained.");
     }
 
     static void WorldIdentity(Transform target,Transform parent)

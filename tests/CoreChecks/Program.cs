@@ -137,3 +137,10 @@ for(var day=1;day<=100;day++){
  Check(!DeliveryPauseRules.ShouldWait(false,13,1),"The operator can allow extra deliveries on any day");
 }
 Console.WriteLine("ALL DELIVERY PAUSE CHECKS PASSED; button rendering, input and native truck transitions require manual gameplay validation.");
+Check(IntakeRimRules.Supported(.057f,-1.97f,.11263f),"Audited small raised crusher rim is eligible for a flush collision surface");
+Check(!IntakeRimRules.Supported(.057f,-1.97f,.4f),"A large machine obstacle must not be flattened");
+Check(!IntakeRimRules.Supported(0,-2,float.NaN)&&!IntakeRimRules.Supported(0,float.NegativeInfinity,.05f),"Unknown or invalid rim geometry is rejected");
+Check(IntakeRimRules.FlushHeight(.11263f,.057f)==.057f,"The raised lip becomes flush with the walking floor");
+Check(IntakeRimRules.FlushHeight(-1.97f,.057f)==-1.97f&&IntakeRimRules.FlushHeight(-.3f,.057f)==-.3f,"Lower pit collision walls retain their original heights");
+Check(IntakeRimRules.FlushHeight(.057f,.057f)==.057f,"Existing floor-level seams stay unchanged");
+Console.WriteLine("ALL FLUSH INTAKE RIM CHECKS PASSED; body passage over the seam still requires manual physics validation.");

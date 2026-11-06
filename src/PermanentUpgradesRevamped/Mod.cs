@@ -5,7 +5,7 @@ using Newtonsoft.Json.Linq;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-[assembly: MelonInfo(typeof(PermanentUpgradesRevamped.Mod), "Permanent Upgrades Revamped", "0.14.3", "Max & Codex")]
+[assembly: MelonInfo(typeof(PermanentUpgradesRevamped.Mod), "Permanent Upgrades Revamped", "0.14.4", "Max & Codex")]
 [assembly: MelonGame("LuisDev", "Can 'Em All")]
 [assembly: HarmonyDontPatchAll]
 

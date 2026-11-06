@@ -11,6 +11,8 @@ import UnityPy
 from UnityPy.helpers.MeshHelper import MeshHandler
 
 EXPECTED = {"Floor": 694, "ConcreteFloorCol": 40, "MetalFloorCol": 425}
+RIM_NAME = "Machine_Crusher.Col"
+RIM_VERTICES = 149
 
 
 def transform(game_object):
@@ -50,7 +52,10 @@ def export(game_dir: Path):
         data = obj.read()
         game_object = data.m_GameObject.deref().read()
         name = game_object.m_Name
-        if obj.type.name == "MeshCollider" and name not in ("ConcreteFloorCol", "MetalFloorCol"):
+        rim = obj.type.name == "MeshCollider" and name.startswith("Machine_Crusher_Col")
+        if rim and any(row["Kind"] == "intake-rim" for row in result):
+            continue
+        if obj.type.name == "MeshCollider" and name not in ("ConcreteFloorCol", "MetalFloorCol") and not rim:
             continue
         if obj.type.name == "MeshRenderer" and name != "Floor":
             continue
@@ -70,12 +75,14 @@ def export(game_dir: Path):
         handler.process()
         triangles = handler.get_triangles()[first:first + count]
         ids = sorted({index for submesh in triangles for tri in submesh for index in tri})
-        if len(ids) != EXPECTED[name]:
-            raise ValueError(f"Unsupported {name} layout: {len(ids)} vertices; expected {EXPECTED[name]}")
+        expected = RIM_VERTICES if rim else EXPECTED[name]
+        if len(ids) != expected or (rim and mesh.m_Name != RIM_NAME):
+            raise ValueError(f"Unsupported {name} layout: {len(ids)} vertices; expected {expected}")
         remap = {original: compact for compact, original in enumerate(ids)}
-        matrix = np.eye(4) if visual else world_matrix(transform(game_object), cache)
+        # Rims are reused in each processor's own transform, including purchased width.
+        matrix = np.eye(4) if visual or rim else world_matrix(transform(game_object), cache)
         vertices = np.array(handler.m_Vertices)[ids] @ matrix[:3, :3].T + matrix[:3, 3]
-        row = {"Name": name, "Kind": "visual" if visual else "collider",
+        row = {"Name": RIM_NAME if rim else name, "Kind": "intake-rim" if rim else "visual" if visual else "collider",
                "Vertices": vertices.tolist(),
                "Submeshes": [[remap[index] for tri in submesh for index in tri]
                              for submesh in triangles]}
@@ -88,8 +95,8 @@ def export(game_dir: Path):
                     row[key] = [list(values[index])[:length] for index in ids]
         result.append(row)
         print(f"{name}: {len(ids)} vertices")
-    if len(result) != 3 or {row["Name"] for row in result} != set(EXPECTED):
-        raise ValueError("Expected exactly one Floor renderer and the two tested floor colliders")
+    if len(result) != 4 or {row["Name"] for row in result} != set(EXPECTED) | {RIM_NAME}:
+        raise ValueError("Expected the Floor renderer, two floor colliders and one shared intake rim")
     return result
 
 

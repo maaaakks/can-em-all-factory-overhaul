@@ -2,7 +2,7 @@
 
 An experimental progression and factory automation overhaul for **Can ’Em All**.
 
-**Current code version: 0.14.3 alpha.** Built with MelonLoader for the Windows Steam IL2CPP version of the game. The in-game assembly still uses the name **Permanent Upgrades Revamped**.
+**Current code version: 0.14.4 alpha.** Built with MelonLoader for the Windows Steam IL2CPP version of the game. The in-game assembly still uses the name **Permanent Upgrades Revamped**.
 
 > **Source preview:** this repository contains the mod source, English documentation and core checks. A player-ready installer and downloadable binary release have not been published. The custom upgrade interface is in English; the new delivery control currently has French labels.
 
@@ -40,6 +40,7 @@ An experimental progression and factory automation overhaul for **Can ’Em All*
 - Upgrade suction to **26 m range** and **3 m/s target speed**.
 - Expand grinder openings up to **×2.25 width**, including floor visuals, collisions and capture volumes.
 - Resize locked grinder covers and their solid supports with the openings.
+- Make grinder rim collisions flush with the walking floor, removing the small raised lip that can catch bodies during horizontal suction. Lower pit walls and purchased opening widths remain intact.
 
 #### Final optimization - maximum-width grinders
 
@@ -92,7 +93,7 @@ Other game builds, Linux/Proton and combinations with other mods have not been v
 
 ## Build from source
 
-The game and loader assemblies are local build references. They are **not included** in this repository. The floor geometry snapshot is also generated locally and ignored by Git.
+The game and loader assemblies are local build references. They are **not included** in this repository. The floor/rim geometry snapshot is also generated locally and ignored by Git. When updating to 0.14.4, regenerate an older snapshot with the current exporter (or build without `-SkipGeometry`); the snapshot now also includes the shared rim collision mesh.
 
 1. Install the game and the tested MelonLoader version. Launch the game once so that its IL2CPP reference assemblies are generated, then close it.
 2. Install .NET SDK 8 and Python 3.11. Set up the local geometry tooling:
@@ -120,7 +121,7 @@ See [BUILDING.md](docs/BUILDING.md) for manual commands and dependencies.
 
 ## Installation of a locally built copy
 
-Close the game and copy `PermanentUpgradesRevamped.dll` from the build output into the game's `Mods` directory. Launch normally. The loader log should list **Permanent Upgrades Revamped v0.14.3**.
+Close the game and copy `PermanentUpgradesRevamped.dll` from the build output into the game's `Mods` directory. Launch normally. The loader log should list **Permanent Upgrades Revamped v0.14.4**.
 
 In the shop, open **PRESTIGE** or press **P**. Press **P** or **Escape** to close the panel. **Buy Maximum** belongs to the run skill-tree tab and spends run money, not prestige points. Ammunition capacity becomes available at the next normal rearm; it does not grant free ammunition when purchased.
 

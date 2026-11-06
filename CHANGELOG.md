@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.14.4 - Flush grinder collision lips
+
+- Remove the approximately 5.6 cm collision step at each grinder rim so horizontally pulled bodies can enter without climbing a ledge.
+- Lower only raised rim vertices to the floor level. Preserve lower pit walls, triangle topology, horizontal opening dimensions, collision materials and purchased width scaling.
+- Extend the local geometry exporter with the shared native rim collision snapshot; the game mesh is not CPU-readable. Generated geometry remains ignored and must be regenerated when upgrading.
+- Validate five native rims across all seven widths (5,215 vertex/width probes), plus geometry-rule regression checks. Runtime body passage remains a manual gameplay check.
+
 ## 0.14.3 - Guarantee the first daily delivery
 
 - Always allow a fresh daily TruckUpdate to start, even when the delivery toggle remains paused from the previous day.
